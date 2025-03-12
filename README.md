@@ -1,4 +1,6 @@
-# Goggle
+# Goggle [![Build](https://github.com/yuxincs/goggle/actions/workflows/build.yaml/badge.svg)](https://github.com/yuxincs/goggle/actions/workflows/build.yaml) [![Deploy to GitHub Pages](https://github.com/yuxincs/goggle/actions/workflows/release.yaml/badge.svg)](https://github.com/yuxincs/goggle/actions/workflows/release.yaml)
+
+Hosted via Github Pages: https://yuxincs.github.io/goggle/
 
 > [!CAUTION]
 > This project is currently just a PoC to show that it is possible to do this completely in browser. However, I plan to 
