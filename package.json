@@ -1,0 +1,39 @@
+{
+  "name": "goggle",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "predev": "cd wasm && GOOS=js GOARCH=wasm go build -o ../src/assets/goggle.wasm && cp \"$(go env GOROOT)/lib/wasm/wasm_exec.js\" ../src/assets",
+    "dev": "vite",
+    "prebuild": "cd wasm && GOOS=js GOARCH=wasm go build -o ../src/assets/goggle.wasm && cp \"$(go env GOROOT)/lib/wasm/wasm_exec.js\" ../src/assets",
+    "build": "tsc -b && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@fontsource/inter": "^5.0.18",
+    "@fontsource/jetbrains-mono": "^5.0.20",
+    "@monaco-editor/react": "^4.6.0",
+    "@mui/icons-material": "^5.15.20",
+    "@mui/material": "^5.15.20",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^7.13.1",
+    "@typescript-eslint/parser": "^7.13.1",
+    "@vitejs/plugin-react": "^4.3.1",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-refresh": "^0.4.7",
+    "typescript": "^5.2.2",
+    "vite": "6.0.9",
+    "vite-plugin-top-level-await": "^1.4.1",
+    "vite-plugin-wasm": "^3.3.0"
+  }
+}
