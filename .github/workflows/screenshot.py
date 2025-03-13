@@ -7,5 +7,5 @@ with sync_playwright() as p:
     page.set_viewport_size({"width": 3840, "height": 2160})
     page.goto("http://localhost:3000")
     page.wait_for_load_state('load')
-    page.screenshot(path="assets/screenshot.png")
+    page.screenshot(path="dist/assets/screenshot.png")
     browser.close()

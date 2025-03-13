@@ -36,12 +36,11 @@ jobs:
 
       - name: Take screenshot
         run: |
-          cd dist/
-          python -m http.server 3000 &
+          npm run dev &
           SERVER_PID=$!
           pip install playwright
           playwright install --with-deps
-          python3 ../.github/workflows/screenshot.py
+          python3 .github/workflows/screenshot.py
           kill "$SERVER_PID"
 
       - name: Upload artifact
