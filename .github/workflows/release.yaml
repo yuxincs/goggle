@@ -28,6 +28,11 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Take screenshot
+        run: |
+          npx serve -s dist -l 3000 &
+          npx playwright install --with-deps
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
