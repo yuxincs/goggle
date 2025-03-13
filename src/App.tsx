@@ -10,7 +10,23 @@ import { SourceEditor } from "./viewers/SourceEditor.tsx";
 import { Title } from "./title/Title.tsx";
 
 // We store the Go source and the last cursor position in local storage such that users will not lose their input.
-const storedSrc = localStorage.getItem("src") ?? "";
+const defaultCode = `// You can edit this code!
+// Click here and start typing.
+package main
+
+func foo() bool { return true }
+
+func main() {
+    var dummy bool
+    ok := foo()
+    if dummy {
+        if ok {
+            print(ok)
+        }
+    }
+}
+`
+const storedSrc = localStorage.getItem("src") ?? defaultCode;
 const storedPos: IPosition = {
   lineNumber: Number(localStorage.getItem("srcLine")) ?? 1,
   column: Number(localStorage.getItem("srcCol")) ?? 1,
