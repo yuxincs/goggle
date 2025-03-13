@@ -3,7 +3,7 @@ from playwright.sync_api import sync_playwright
 with sync_playwright() as p:
     browser = p.chromium.launch()
     context = browser.new_context(
-        viewport={"width": 1280, "height": 720},
+        viewport={"width": 800, "height": 600},
         device_scale_factor=2,  # Set scale factor to 2 for high-DPI
     )
     page = context.new_page()
