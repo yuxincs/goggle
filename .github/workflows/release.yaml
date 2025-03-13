@@ -32,6 +32,8 @@ jobs:
         run: |
           npx serve -s dist -l 3000 &
           npx playwright install --with-deps
+          pkill -f serve # Kill the web server in background
+          node .github/workflows/screenshot.js
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
