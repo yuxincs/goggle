@@ -31,6 +31,7 @@ jobs:
       - name: Take screenshot
         run: |
           npx serve -s dist -l 3000 &
+          npm install playwright
           npx playwright install --with-deps
           pkill -f serve # Kill the web server in background
           node .github/workflows/screenshot.js
