@@ -10,7 +10,7 @@ Goggle is an in-browser tool that visualizes your Go code in different forms (AS
 program analyzers for Go.
 
 <p align="center">
-  <img src="https://yuxincs.github.io/goggle/assets/screenshot.png" alt="screenshot"/>
+  <img src="https://yuxincs.github.io/goggle/assets/screenshot.png?raw=true" alt="screenshot"/>
 </p>
 
 ## Developing
