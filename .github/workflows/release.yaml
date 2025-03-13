@@ -22,6 +22,11 @@ jobs:
         with:
           go-version-file: 'wasm/go.mod'
 
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
       - name: Install dependencies
         run: npm install
 
@@ -30,11 +35,13 @@ jobs:
 
       - name: Take screenshot
         run: |
-          npx serve -s dist -l 3000 &
-          npm install playwright
-          npx playwright install --with-deps
-          pkill -f serve # Kill the web server in background
-          node .github/workflows/screenshot.js
+          cd dist/
+          python -m http.server 3000 &
+          SERVER_PID=$!
+          pip install playwright
+          playwright install --with-deps
+          python3 screenshot.py
+          kill SERVER_PID
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
