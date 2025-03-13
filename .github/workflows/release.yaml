@@ -31,7 +31,8 @@ jobs:
         run: npm install
 
       - name: Build project
-        run: npm run build
+        # We need to set the BASE_URL to be the project such that Github Pages deployment has the correct paths.
+        run: BASE_URL="/goggle/" npm run build
 
       - name: Take screenshot
         run: |
@@ -41,7 +42,7 @@ jobs:
           pip install playwright
           playwright install --with-deps
           python3 ../.github/workflows/screenshot.py
-          kill SERVER_PID
+          kill "$SERVER_PID"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
