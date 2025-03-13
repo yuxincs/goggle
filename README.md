@@ -9,6 +9,10 @@ Hosted via Github Pages: https://yuxincs.github.io/goggle/
 Goggle is an in-browser tool that visualizes your Go code in different forms (AST, CFG, SSA) to aid the development of
 program analyzers for Go.
 
+<p align="center">
+  <img src="https://yuxincs.github.io/goggle/assets/screenshot.png" alt="screenshot"/>
+</p>
+
 ## Developing
 
 The project is managed by `vite`, and `wasm` contains the Go wasm backend. Building the project basically requires the
