@@ -4,7 +4,7 @@ with sync_playwright() as p:
     browser = p.chromium.launch()
     context = browser.new_context(
         viewport={'width': 3840, 'height': 2160},  # 4K resolution
-        device_scale_factor=2,  # 2x UI scaling
+        device_scale_factor=4,  # 4x UI scaling
     )
     page = context.new_page()
     page.goto("http://localhost:5173")
