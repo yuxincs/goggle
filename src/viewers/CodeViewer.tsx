@@ -15,7 +15,7 @@ export interface CodeViewerProps {
 }
 
 export const CodeViewer = (props: CodeViewerProps) => {
-  const editorRef = useRef<editor.IStandaloneCodeEditor>();
+  const editorRef = useRef<editor.IStandaloneCodeEditor>(null);
 
   // We intentionally do not use the `value` and `line` props of the `Editor` component since it does not provide
   // a way to reveal the line in center (it puts the line as the first line, which leads to bad UX). This means we
@@ -46,21 +46,10 @@ export const CodeViewer = (props: CodeViewerProps) => {
     }
 
     // Set the initial content and line if given.
-    // Here at the end of onMount, we do not really have a fully-initialized editor yet. Initially it would just be
-    // a 5px * 5px component, and calling revealLineInCenter will not really put the line in center (because the
-    // viewport is not properly initialized yet). Ideally, we should listen on ready event and then set the initial
-    // content and reveal the initial line. However, the event is not implemented (see more details at the issue
-    // https://github.com/microsoft/monaco-editor/issues/115). A hacky workaround is to listen on
-    // "onDidLayoutChange" instead, which should be fired whenever the editor is initialized. We dispose the listener
-    // after the first event to avoid setting the initial content again.
     if (props.initialContent == null && props.initialLine == null) {
-      // Early return if nothing to do.
       return;
     }
-    const disposable = editor.onDidLayoutChange(() => {
-      disposable.dispose();
-      update(props.initialContent, props.initialLine);
-    });
+    update(props.initialContent, props.initialLine);
   };
 
   const handleOnChange = (code: string | undefined) => {
