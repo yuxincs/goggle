@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import Box from "@mui/material/Box";
 import { IPosition } from "monaco-editor";
-import Grid from "@mui/material/Unstable_Grid2";
+import Grid from "@mui/material/Grid";
 import { loadGoggleWasm } from "./utils/wasm.ts";
 import { ASTViewer } from "./viewers/ASTViewer.tsx";
 import { CFGViewer } from "./viewers/CFGViewer.tsx";
@@ -73,7 +72,6 @@ export const App = () => {
       renderError("WASM: Go wasm may not have been initialized yet");
       return;
     }
-
     setSrc(code);
 
     // @ts-expect-error: `parse` is injected into global this by the Goggle WebAssembly module.
@@ -92,15 +90,14 @@ export const App = () => {
   const handleSrcPosChange = (pos: IPosition) => setSrcPos(pos);
 
   return (
-    <Box>
-      <Grid container>
-        <Grid xs={12} height="64px">
+      <Grid container sx={{ width: '100%' }}>
+        <Grid size={12} height="64px" >
           <Title />
         </Grid>
 
         <Grid container height="calc(100vh - 64px)" width="100%">
           <Grid
-            xs={6}
+            size={6}
             sx={{
               borderRight: "1px solid lightgray",
               borderBottom: "1px solid lightgray",
@@ -113,19 +110,18 @@ export const App = () => {
               onCursorChange={(event) => handleSrcPosChange(event.position)}
             />
           </Grid>
-          <Grid xs={6} sx={{ borderBottom: "1px solid lightgray" }}>
+          <Grid size={6} sx={{ borderBottom: "1px solid lightgray" }}>
             <ASTViewer src={src} srcPos={srcPos} ast={ast} />
           </Grid>
 
-          <Grid xs={6} sx={{ borderRight: "1px solid lightgray" }}>
+          <Grid size={6} sx={{ borderRight: "1px solid lightgray" }}>
             <CFGViewer src={src} srcPos={srcPos} cfgs={cfgs} />
           </Grid>
-          <Grid xs={6}>
+          <Grid size={6}>
             <SSAViewer src={src} srcPos={srcPos} ssa={ssa} />
           </Grid>
         </Grid>
       </Grid>
-    </Box>
   );
 };
 
