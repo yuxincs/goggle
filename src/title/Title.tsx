@@ -2,9 +2,6 @@ import { IconButton, Stack, styled } from "@mui/material";
 
 import GoggleIcon from "/goggle.svg?url";
 import GitHubIcon from "@mui/icons-material/GitHub";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
-import IosShareIcon from "@mui/icons-material/IosShare";
-import { TitleButton } from "./TitleButton.tsx";
 import { PROJECT_URL } from "../constants.ts";
 
 const StyledTitle = styled(Stack)({
