@@ -36,15 +36,6 @@ export const Title = () => {
         <span>(Go)ggle</span>
       </StyledLogo>
 
-      <TitleButton disabled={true}>
-        <UploadFileIcon />
-        <span>Load Packages</span>
-      </TitleButton>
-      <TitleButton disabled={true}>
-        <IosShareIcon />
-        <span>Export</span>
-      </TitleButton>
-
       {/* The invisible divider that pushes the components below to the right */}
       <span style={{ marginLeft: "auto" }} />
 
