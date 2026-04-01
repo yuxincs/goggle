@@ -17,24 +17,24 @@
     "@fontsource/inter": "^5.2.8",
     "@fontsource/jetbrains-mono": "^5.2.8",
     "@monaco-editor/react": "^4.7.0",
-    "@mui/icons-material": "^7.3.7",
+    "@mui/icons-material": "^7.3.9",
     "@mui/material": "^7.2.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },
   "devDependencies": {
-    "@types/node": "^25.1.0",
-    "@types/react": "^19.2.10",
+    "@types/node": "^25.5.0",
+    "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "@typescript-eslint/eslint-plugin": "^8.58.0",
     "@typescript-eslint/parser": "^8.36.0",
-    "@vitejs/plugin-react": "^5.1.2",
-    "eslint": "^9.39.2",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^10.1.0",
     "eslint-plugin-react-hooks": "^7.0.1",
-    "eslint-plugin-react-refresh": "^0.5.0",
-    "typescript": "^5.9.3",
-    "vite": "7.3.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "typescript": "^6.0.2",
+    "vite": "8.0.3",
     "vite-plugin-top-level-await": "^1.6.0",
-    "vite-plugin-wasm": "^3.5.0"
+    "vite-plugin-wasm": "^3.6.0"
   }
 }
