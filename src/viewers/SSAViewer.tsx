@@ -8,6 +8,7 @@ interface SSAViewerProps {
   src: string;
   srcPos: IPosition;
   ssa: string | undefined | null;
+  theme: "light" | "dark";
 }
 
 export const SSAViewer: React.FC<SSAViewerProps> = (props: SSAViewerProps) => {
@@ -26,6 +27,7 @@ export const SSAViewer: React.FC<SSAViewerProps> = (props: SSAViewerProps) => {
         content={content}
         line={props.srcPos.lineNumber}
         readOnly={true}
+        theme={props.theme}
         height={`calc(100% - ${VIEWER_TITLE_HEIGHT})`}
       />
     </>

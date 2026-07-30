@@ -8,6 +8,7 @@ interface SourceEditorProps {
   onCursorChange: (event: editor.ICursorPositionChangedEvent) => void;
   initialContent: string;
   initialPosition: IPosition;
+  theme: "light" | "dark";
 }
 
 export const SourceEditor = (props: SourceEditorProps) => {
@@ -19,6 +20,7 @@ export const SourceEditor = (props: SourceEditorProps) => {
         initialLine={props.initialPosition.lineNumber}
         onChange={props.onChange}
         onCursorChange={props.onCursorChange}
+        theme={props.theme}
         height={`calc(100% - ${VIEWER_TITLE_HEIGHT})`}
       />
     </>

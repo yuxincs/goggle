@@ -8,6 +8,7 @@ interface ASTViewerProps {
   src: string;
   srcPos: IPosition;
   ast: string;
+  theme: "light" | "dark";
 }
 
 export const ASTViewer: React.FC<ASTViewerProps> = (props: ASTViewerProps) => {
@@ -18,6 +19,7 @@ export const ASTViewer: React.FC<ASTViewerProps> = (props: ASTViewerProps) => {
         content={props.ast}
         line={props.srcPos.lineNumber}
         readOnly={true}
+        theme={props.theme}
         height={`calc(100% - ${VIEWER_TITLE_HEIGHT})`}
       />
     </>
