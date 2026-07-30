@@ -14,6 +14,7 @@ interface CFGViewerProps {
   src: string;
   srcPos: IPosition;
   cfgs: CFG[] | string | undefined | null;
+  theme: "light" | "dark";
 }
 
 export const CFGViewer: React.FC<CFGViewerProps> = (props: CFGViewerProps) => {
@@ -38,6 +39,7 @@ export const CFGViewer: React.FC<CFGViewerProps> = (props: CFGViewerProps) => {
         content={content}
         line={props.srcPos.lineNumber}
         readOnly={true}
+        theme={props.theme}
         height={`calc(100% - ${VIEWER_TITLE_HEIGHT})`}
       />
     </>

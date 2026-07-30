@@ -12,6 +12,7 @@ export interface CodeViewerProps {
   readonly onChange?: (code: string) => void;
   readonly onCursorChange?: (event: editor.ICursorPositionChangedEvent) => void;
   readonly readOnly?: boolean;
+  readonly theme?: "light" | "dark";
 }
 
 export const CodeViewer = (props: CodeViewerProps) => {
@@ -65,6 +66,57 @@ export const CodeViewer = (props: CodeViewerProps) => {
     <Editor
       height={props.height ?? "100%"}
       language="go"
+      theme={props.theme === "light" ? "goggle-light" : "goggle-dark"}
+      beforeMount={(monaco) => {
+        monaco.editor.defineTheme("goggle-dark", {
+          base: "vs-dark",
+          inherit: true,
+          rules: [
+            { token: "comment", foreground: "667085", fontStyle: "italic" },
+            { token: "keyword", foreground: "C792EA" },
+            { token: "string", foreground: "A9DC76" },
+            { token: "number", foreground: "F78C6C" },
+            { token: "type", foreground: "82AAFF" },
+          ],
+          colors: {
+            "editor.background": "#11141b",
+            "editor.foreground": "#D8DEE9",
+            "editorLineNumber.foreground": "#434B5B",
+            "editorLineNumber.activeForeground": "#AAB2C0",
+            "editor.lineHighlightBackground": "#171C27",
+            "editorCursor.foreground": "#66D9A8",
+            "editor.selectionBackground": "#293B4F",
+            "editor.inactiveSelectionBackground": "#202D3D",
+            "editorIndentGuide.background1": "#232936",
+            "editorIndentGuide.activeBackground1": "#394252",
+            "scrollbarSlider.background": "#39425266",
+            "scrollbarSlider.hoverBackground": "#4B566A88",
+          },
+        });
+        monaco.editor.defineTheme("goggle-light", {
+          base: "vs",
+          inherit: true,
+          rules: [
+            { token: "comment", foreground: "7C8799", fontStyle: "italic" },
+            { token: "keyword", foreground: "7C3AED" },
+            { token: "string", foreground: "16845B" },
+            { token: "number", foreground: "C2410C" },
+            { token: "type", foreground: "2563EB" },
+          ],
+          colors: {
+            "editor.background": "#FFFFFF",
+            "editor.foreground": "#202633",
+            "editorLineNumber.foreground": "#A4ABBA",
+            "editorLineNumber.activeForeground": "#4B5565",
+            "editor.lineHighlightBackground": "#F4F6F9",
+            "editorCursor.foreground": "#0E9F6E",
+            "editor.selectionBackground": "#CFE8DE",
+            "editor.inactiveSelectionBackground": "#E2F1EB",
+            "editorIndentGuide.background1": "#E6E9EF",
+            "editorIndentGuide.activeBackground1": "#C4CAD5",
+          },
+        });
+      }}
       onChange={handleOnChange}
       onMount={handleOnMount}
       loading={false}
@@ -73,6 +125,15 @@ export const CodeViewer = (props: CodeViewerProps) => {
         minimap: { enabled: false },
         overviewRulerLanes: 0,
         automaticLayout: true,
+        fontFamily: '"JetBrains Mono", monospace',
+        fontSize: 13,
+        lineHeight: 22,
+        padding: { top: 14, bottom: 14 },
+        renderLineHighlight: "all",
+        roundedSelection: true,
+        scrollbar: { verticalScrollbarSize: 8, horizontalScrollbarSize: 8 },
+        smoothScrolling: true,
+        cursorSmoothCaretAnimation: "on",
       }}
     />
   );

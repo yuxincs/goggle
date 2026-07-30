@@ -1,5 +1,405 @@
-body {
-    height: 100vh;
-    width: 100vw;
-    margin: 0;
+:root {
+  font-family: "Inter", system-ui, sans-serif;
+  color: #e7eaf0;
+  background: #0b0d12;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-width: 320px;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+button,
+a {
+  font: inherit;
+}
+
+.app-shell {
+  --panel-title-text: #d8dee9;
+  --panel-title-bg: #171b24;
+  --panel-title-border: #262c38;
+  display: grid;
+  grid-template-rows: 68px minmax(0, 1fr) 28px;
+  height: 100%;
+  background: #0b0d12;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 0 22px;
+  border-bottom: 1px solid #242936;
+  background: #0e1117;
+  z-index: 10;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand__mark {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid #343b4b;
+  border-radius: 6px;
+  background: #171b24;
+}
+
+.brand__mark img {
+  width: 23px;
+  height: 23px;
+}
+
+.brand__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.brand__name {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.brand__tagline {
+  color: #778195;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.topbar__context {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: #778195;
+  font-size: 13px;
+}
+
+.topbar__context strong {
+  overflow: hidden;
+  color: #c9cfda;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topbar__slash {
+  color: #424a5b;
+}
+
+.topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.engine-status,
+.github-link,
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid #2d3442;
+  border-radius: 6px;
+  color: #aab2c0;
+  background: #151922;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.theme-toggle {
+  width: 34px;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.theme-toggle:hover {
+  border-color: #4b566a;
+  background: #1c212c;
+}
+
+.theme-toggle:focus-visible,
+.github-link:focus-visible,
+.splitter:focus-visible {
+  outline: 2px solid #66d9a8;
+  outline-offset: 2px;
+}
+
+.engine-status__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #66d9a8;
+}
+
+.engine-status--error .engine-status__dot {
+  background: #ff7b72;
+}
+
+.github-link {
+  color: #d4d9e2;
+  text-decoration: none;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.github-link:hover {
+  border-color: #4b566a;
+  background: #1c212c;
+}
+
+.workspace {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
+  gap: 0;
+  min-height: 0;
+  padding: 0;
+  border-bottom: 1px solid #272d39;
+}
+
+.pane-column {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+}
+
+.splitter {
+  position: absolute;
+  z-index: 5;
+  border: 0;
+  outline: none;
+  touch-action: none;
+}
+
+.splitter::before {
+  position: absolute;
+  content: "";
+  background: #303744;
+  transition: background 150ms ease;
+}
+
+.splitter:hover::before,
+.splitter:focus-visible::before,
+.splitter:active::before {
+  background: #66d9a8;
+  opacity: 1;
+}
+
+.splitter--vertical {
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: col-resize;
+  transform: translateX(-50%);
+}
+
+.splitter--vertical::before {
+  top: 0;
+  bottom: 0;
+  left: 3px;
+  width: 1px;
+}
+
+.splitter--horizontal {
+  right: 0;
+  left: 0;
+  height: 8px;
+  cursor: row-resize;
+  transform: translateY(-50%);
+}
+
+.splitter--horizontal::before {
+  top: 3px;
+  right: 0;
+  left: 0;
+  height: 1px;
+}
+
+.panel {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: #11141b;
+}
+
+.panel--source {
+  border: 0;
+}
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 0 14px;
+  border-top: 1px solid #242936;
+  color: #737e91;
+  background: #0e1117;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+}
+
+.status-bar__location {
+  color: #b4bdcb;
+}
+
+.status-bar__engine {
+  margin-left: auto;
+}
+
+.app-shell[data-theme="light"] {
+  --panel-title-text: #4b5565;
+  --panel-title-bg: #f7f8fa;
+  --panel-title-border: #e1e5eb;
+  color: #202633;
+  background: #eef1f5;
+}
+
+.app-shell[data-theme="light"] .topbar {
+  border-bottom-color: #dce1e8;
+  background: #fafbfc;
+}
+
+.app-shell[data-theme="light"] .brand__mark {
+  border-color: #d8dde5;
+  background: #ffffff;
+}
+
+.app-shell[data-theme="light"] .brand__tagline,
+.app-shell[data-theme="light"] .topbar__context,
+.app-shell[data-theme="light"] .status-bar {
+  color: #768093;
+}
+
+.app-shell[data-theme="light"] .topbar__context strong {
+  color: #3f4858;
+}
+
+.app-shell[data-theme="light"] .engine-status,
+.app-shell[data-theme="light"] .github-link,
+.app-shell[data-theme="light"] .theme-toggle {
+  border-color: #d8dde5;
+  color: #4b5565;
+  background: #ffffff;
+}
+
+.app-shell[data-theme="light"] .github-link:hover,
+.app-shell[data-theme="light"] .theme-toggle:hover {
+  border-color: #b7bfcb;
+  background: #f4f6f8;
+}
+
+.app-shell[data-theme="light"] .panel {
+  background: #ffffff;
+}
+
+.app-shell[data-theme="light"] .panel--source {
+  border: 0;
+}
+
+.app-shell[data-theme="light"] .workspace {
+  border-bottom-color: #dce1e8;
+}
+
+.app-shell[data-theme="light"] .splitter::before {
+  background: #dce1e8;
+}
+
+.app-shell[data-theme="light"] .splitter:hover::before,
+.app-shell[data-theme="light"] .splitter:focus-visible::before,
+.app-shell[data-theme="light"] .splitter:active::before {
+  background: #0e9f6e;
+}
+
+.app-shell[data-theme="light"] .status-bar {
+  border-top-color: #dce1e8;
+  background: #f8f9fb;
+}
+
+.app-shell[data-theme="light"] .status-bar__location {
+  color: #4b5565;
+}
+
+@media (max-width: 760px) {
+  html,
+  body,
+  #root {
+    overflow: auto;
+  }
+
+  .app-shell {
+    height: auto;
+    min-height: 100%;
+    grid-template-rows: 64px auto 28px;
+  }
+
+  .topbar {
+    gap: 12px;
+    padding: 0 14px;
+  }
+
+  .brand__tagline,
+  .topbar__context,
+  .engine-status,
+  .github-link span {
+    display: none;
+  }
+
+  .github-link {
+    width: 36px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .workspace {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: none !important;
+  }
+
+  .pane-column {
+    display: contents;
+  }
+
+  .panel {
+    height: 420px;
+  }
+
+  .status-bar__engine {
+    display: none;
+  }
+
+  .splitter {
+    display: none;
+  }
 }
