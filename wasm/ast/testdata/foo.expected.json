@@ -1,0 +1,128 @@
+{
+  "type": "File",
+  "range": {
+    "start": {
+      "offset": 0,
+      "line": 1,
+      "column": 1
+    },
+    "end": {
+      "offset": 31,
+      "line": 3,
+      "column": 16
+    }
+  },
+  "properties": {
+    "package": "sample"
+  },
+  "children": [
+    {
+      "field": "Name",
+      "node": {
+        "type": "Ident",
+        "range": {
+          "start": {
+            "offset": 8,
+            "line": 1,
+            "column": 9
+          },
+          "end": {
+            "offset": 14,
+            "line": 1,
+            "column": 15
+          }
+        },
+        "properties": {
+          "name": "sample"
+        }
+      }
+    },
+    {
+      "field": "Decls",
+      "index": 0,
+      "node": {
+        "type": "GenDecl",
+        "range": {
+          "start": {
+            "offset": 16,
+            "line": 3,
+            "column": 1
+          },
+          "end": {
+            "offset": 31,
+            "line": 3,
+            "column": 16
+          }
+        },
+        "children": [
+          {
+            "field": "Specs",
+            "index": 0,
+            "node": {
+              "type": "ValueSpec",
+              "range": {
+                "start": {
+                  "offset": 20,
+                  "line": 3,
+                  "column": 5
+                },
+                "end": {
+                  "offset": 31,
+                  "line": 3,
+                  "column": 16
+                }
+              },
+              "children": [
+                {
+                  "field": "Names",
+                  "index": 0,
+                  "node": {
+                    "type": "Ident",
+                    "range": {
+                      "start": {
+                        "offset": 20,
+                        "line": 3,
+                        "column": 5
+                      },
+                      "end": {
+                        "offset": 26,
+                        "line": 3,
+                        "column": 11
+                      }
+                    },
+                    "properties": {
+                      "name": "answer"
+                    }
+                  }
+                },
+                {
+                  "field": "Values",
+                  "index": 0,
+                  "node": {
+                    "type": "BasicLit",
+                    "range": {
+                      "start": {
+                        "offset": 29,
+                        "line": 3,
+                        "column": 14
+                      },
+                      "end": {
+                        "offset": 31,
+                        "line": 3,
+                        "column": 16
+                      }
+                    },
+                    "properties": {
+                      "token": "INT",
+                      "value": "42"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

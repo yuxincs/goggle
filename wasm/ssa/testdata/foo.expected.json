@@ -1,0 +1,77 @@
+[
+  {
+    "name": "add",
+    "signature": "func(left int, right int) int",
+    "position": {
+      "offset": 21,
+      "line": 3,
+      "column": 6
+    },
+    "parameters": [
+      {
+        "name": "left",
+        "type": "int",
+        "text": "parameter left : int"
+      },
+      {
+        "name": "right",
+        "type": "int",
+        "text": "parameter right : int"
+      }
+    ],
+    "blocks": [
+      {
+        "index": 0,
+        "comment": "entry",
+        "predecessors": [],
+        "successors": [],
+        "instructions": [
+          {
+            "index": 0,
+            "opcode": "BinOp",
+            "text": "left + right",
+            "position": {
+              "offset": 61,
+              "line": 4,
+              "column": 14
+            },
+            "result": {
+              "name": "t0",
+              "type": "int",
+              "text": "left + right"
+            },
+            "operands": [
+              {
+                "name": "left",
+                "type": "int",
+                "text": "parameter left : int"
+              },
+              {
+                "name": "right",
+                "type": "int",
+                "text": "parameter right : int"
+              }
+            ]
+          },
+          {
+            "index": 1,
+            "opcode": "Return",
+            "text": "return t0",
+            "position": {
+              "offset": 49,
+              "line": 4,
+              "column": 2
+            },
+            "operands": [
+              {
+                "name": "t0",
+                "type": "int",
+                "text": "left + right"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
