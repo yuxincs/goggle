@@ -7,18 +7,39 @@ APP_WIDTH = 1024
 APP_HEIGHT = 768
 TITLE_BAR_HEIGHT = 44
 FRAME_PADDING = 80
+ANALYSIS_TIMEOUT = 60_000
 
 
-def capture_theme(context, theme):
-    page = context.new_page()
-    page.add_init_script(f"localStorage.setItem('theme', '{theme}')")
-    page.goto("http://localhost:5173")
-    page.wait_for_load_state("networkidle")
-    page.wait_for_selector(f'.app-shell[data-theme="{theme}"]')
+def encode_screenshot(page):
+    return base64.b64encode(page.screenshot()).decode("ascii")
+
+
+def wait_for_render(page, theme):
+    page.wait_for_selector(
+        f'.app-shell[data-theme="{theme}"][data-analysis-ready="true"]',
+        timeout=ANALYSIS_TIMEOUT,
+    )
     page.evaluate("document.fonts.ready")
-    screenshot = page.screenshot()
+    page.evaluate(
+        "() => new Promise(resolve => "
+        "requestAnimationFrame(() => requestAnimationFrame(resolve)))"
+    )
+
+
+def capture_themes(context):
+    page = context.new_page()
+    page.add_init_script("localStorage.setItem('theme', 'dark')")
+    page.goto("http://localhost:5173")
+
+    wait_for_render(page, "dark")
+    dark_screenshot = encode_screenshot(page)
+
+    page.get_by_role("button", name="Switch to light mode").click()
+    wait_for_render(page, "light")
+    light_screenshot = encode_screenshot(page)
+
     page.close()
-    return base64.b64encode(screenshot).decode("ascii")
+    return dark_screenshot, light_screenshot
 
 
 def build_window_html(dark_screenshot, light_screenshot):
@@ -189,8 +210,7 @@ with sync_playwright() as p:
             device_scale_factor=2,
         )
 
-        dark_screenshot = capture_theme(context, "dark")
-        light_screenshot = capture_theme(context, "light")
+        dark_screenshot, light_screenshot = capture_themes(context)
         capture_window(context, dark_screenshot, light_screenshot)
     finally:
         browser.close()

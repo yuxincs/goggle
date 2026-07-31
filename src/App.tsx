@@ -118,6 +118,10 @@ export const App = () => {
   };
 
   const hasError = typeof ast === "string" && ast.startsWith("ERROR:");
+  const isAnalysisReady = isReady &&
+    typeof ast !== "string" &&
+    Array.isArray(cfgs) &&
+    Array.isArray(ssa);
 
   type Splitter = "column" | "leftRow" | "rightRow";
 
@@ -165,7 +169,11 @@ export const App = () => {
   };
 
   return (
-    <div className="app-shell" data-theme={theme}>
+    <div
+      className="app-shell"
+      data-theme={theme}
+      data-analysis-ready={isAnalysisReady}
+    >
       <Title
         isReady={isReady}
         hasError={hasError}
