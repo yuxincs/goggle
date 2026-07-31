@@ -1,5 +1,5 @@
 import { editor } from "monaco-editor";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Editor } from "@monaco-editor/react";
 import ScrollType = editor.ScrollType;
 
@@ -11,17 +11,23 @@ export interface CodeViewerProps {
   readonly height?: string | number;
   readonly onChange?: (code: string) => void;
   readonly onCursorChange?: (event: editor.ICursorPositionChangedEvent) => void;
+  readonly onReady?: () => void;
   readonly readOnly?: boolean;
   readonly theme?: "light" | "dark";
 }
 
 export const CodeViewer = (props: CodeViewerProps) => {
   const editorRef = useRef<editor.IStandaloneCodeEditor>(null);
+  const [mountedEditor, setMountedEditor] = useState<editor.IStandaloneCodeEditor | null>(null);
   const onCursorChangeRef = useRef(props.onCursorChange);
+  const onReadyRef = useRef(props.onReady);
   const suppressCursorChangeRef = useRef(false);
   useEffect(() => {
     onCursorChangeRef.current = props.onCursorChange;
   }, [props.onCursorChange]);
+  useEffect(() => {
+    onReadyRef.current = props.onReady;
+  }, [props.onReady]);
 
   // We intentionally do not use the `value` and `line` props of the `Editor` component since it does not provide
   // a way to reveal the line in center (it puts the line as the first line, which leads to bad UX). This means we
@@ -58,6 +64,7 @@ export const CodeViewer = (props: CodeViewerProps) => {
   const handleOnMount = (editor: editor.IStandaloneCodeEditor) => {
     // Keep a ref for other uses.
     editorRef.current = editor;
+    setMountedEditor(editor);
 
     // Register cursor position change listener.
     editor.onDidChangeCursorPosition((event) => {
@@ -65,14 +72,6 @@ export const CodeViewer = (props: CodeViewerProps) => {
         onCursorChangeRef.current?.(event);
       }
     });
-
-    // Set the controlled values, falling back to initial values when given.
-    const content = props.content ?? props.initialContent;
-    const line = props.line ?? props.initialLine;
-    if (content == null && line == null) {
-      return;
-    }
-    update(content, line);
   };
 
   const handleOnChange = (code: string | undefined) => {
@@ -83,8 +82,20 @@ export const CodeViewer = (props: CodeViewerProps) => {
   };
 
   useEffect(() => {
-    update(props.content, props.line);
-  }, [props.content, props.line, update]);
+    if (mountedEditor === null) return;
+    update(
+      props.content ?? props.initialContent,
+      props.line ?? props.initialLine,
+    );
+    onReadyRef.current?.();
+  }, [
+    mountedEditor,
+    props.content,
+    props.initialContent,
+    props.line,
+    props.initialLine,
+    update,
+  ]);
 
   return (
     <Editor
