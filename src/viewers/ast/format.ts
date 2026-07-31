@@ -1,12 +1,14 @@
 import { ASTNode, SourceRange } from "../../analysis.ts";
+import { FormattedAnalysis } from "../lineMapping.ts";
 
 const formatPosition = (line: number, column: number) => `${line}:${column}`;
 
 const formatRange = (range: SourceRange) =>
   `${formatPosition(range.start.line, range.start.column)}-${formatPosition(range.end.line, range.end.column)}`;
 
-export const formatAST = (root: ASTNode): string => {
+export const formatAST = (root: ASTNode): FormattedAnalysis => {
   const lines: string[] = [];
+  const sourceLines: number[] = [];
 
   const visit = (node: ASTNode, depth: number, label?: string) => {
     const indentation = "  ".repeat(depth);
@@ -18,6 +20,7 @@ export const formatAST = (root: ASTNode): string => {
     lines.push(
       `${indentation}${prefix}${node.type} [${formatRange(node.range)}]${properties === "" ? "" : ` ${properties}`}`,
     );
+    sourceLines.push(node.range.start.line);
 
     for (const child of node.children ?? []) {
       const childLabel = child.index === undefined
@@ -28,5 +31,8 @@ export const formatAST = (root: ASTNode): string => {
   };
 
   visit(root, 0);
-  return lines.join("\n");
+  return {
+    content: lines.join("\n"),
+    sourceLines,
+  };
 };

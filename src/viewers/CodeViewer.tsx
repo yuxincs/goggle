@@ -17,6 +17,9 @@ export interface CodeViewerProps {
 
 export const CodeViewer = (props: CodeViewerProps) => {
   const editorRef = useRef<editor.IStandaloneCodeEditor>(null);
+  const onCursorChangeRef = useRef(props.onCursorChange);
+  const suppressCursorChangeRef = useRef(false);
+  onCursorChangeRef.current = props.onCursorChange;
 
   // We intentionally do not use the `value` and `line` props of the `Editor` component since it does not provide
   // a way to reveal the line in center (it puts the line as the first line, which leads to bad UX). This means we
@@ -28,12 +31,25 @@ export const CodeViewer = (props: CodeViewerProps) => {
     if (ref == null) {
       return;
     }
-    if (content !== undefined) {
-      ref.setValue(content);
+    const shouldUpdateContent = content !== undefined &&
+      ref.getValue() !== content;
+    const shouldUpdateLine = line !== undefined &&
+      (shouldUpdateContent || ref.getPosition()?.lineNumber !== line);
+    if (!shouldUpdateContent && !shouldUpdateLine) {
+      return;
     }
-    if (line !== undefined) {
-      ref.revealLineInCenterIfOutsideViewport(line, ScrollType.Smooth);
-      ref.setPosition({ lineNumber: line, column: 1 });
+
+    suppressCursorChangeRef.current = true;
+    try {
+      if (shouldUpdateContent) {
+        ref.setValue(content);
+      }
+      if (shouldUpdateLine) {
+        ref.revealLineInCenterIfOutsideViewport(line, ScrollType.Smooth);
+        ref.setPosition({ lineNumber: line, column: 1 });
+      }
+    } finally {
+      suppressCursorChangeRef.current = false;
     }
   };
 
@@ -42,15 +58,19 @@ export const CodeViewer = (props: CodeViewerProps) => {
     editorRef.current = editor;
 
     // Register cursor position change listener.
-    if (props.onCursorChange !== undefined) {
-      editor.onDidChangeCursorPosition(props.onCursorChange);
-    }
+    editor.onDidChangeCursorPosition((event) => {
+      if (!suppressCursorChangeRef.current) {
+        onCursorChangeRef.current?.(event);
+      }
+    });
 
-    // Set the initial content and line if given.
-    if (props.initialContent == null && props.initialLine == null) {
+    // Set the controlled values, falling back to initial values when given.
+    const content = props.content ?? props.initialContent;
+    const line = props.line ?? props.initialLine;
+    if (content == null && line == null) {
       return;
     }
-    update(props.initialContent, props.initialLine);
+    update(content, line);
   };
 
   const handleOnChange = (code: string | undefined) => {

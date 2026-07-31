@@ -101,7 +101,21 @@ export const App = () => {
     setSSA(body.ssa);
   };
 
-  const handleSrcPosChange = (pos: IPosition) => setSrcPos(pos);
+  const handleSrcPosChange = (pos: IPosition) => {
+    setSrcPos((current) =>
+      current.lineNumber === pos.lineNumber && current.column === pos.column
+        ? current
+        : pos
+    );
+  };
+
+  const handleAnalysisLineSelect = (lineNumber: number) => {
+    setSrcPos((current) =>
+      current.lineNumber === lineNumber
+        ? current
+        : { lineNumber, column: 1 }
+    );
+  };
 
   const hasError = typeof ast === "string" && ast.startsWith("ERROR:");
 
@@ -173,7 +187,7 @@ export const App = () => {
           <section className="panel panel--source" aria-label="Go source editor">
             <SourceEditor
               initialContent={src}
-              initialPosition={srcPos}
+              position={srcPos}
               onChange={handleSrcChange}
               onCursorChange={(event) => handleSrcPosChange(event.position)}
               theme={theme}
@@ -181,7 +195,12 @@ export const App = () => {
           </section>
 
           <section className="panel" aria-label="Control flow graph">
-            <CFGViewer src={src} srcPos={srcPos} cfgs={cfgs} theme={theme} />
+            <CFGViewer
+              cfgs={cfgs}
+              sourceLine={srcPos.lineNumber}
+              onSourceLineSelect={handleAnalysisLineSelect}
+              theme={theme}
+            />
           </section>
 
           <div
@@ -206,11 +225,21 @@ export const App = () => {
           style={{ gridTemplateRows: `${rightRowSplit}fr ${100 - rightRowSplit}fr` }}
         >
           <section className="panel" aria-label="Abstract syntax tree">
-            <ASTViewer src={src} srcPos={srcPos} ast={ast} theme={theme} />
+            <ASTViewer
+              ast={ast}
+              sourceLine={srcPos.lineNumber}
+              onSourceLineSelect={handleAnalysisLineSelect}
+              theme={theme}
+            />
           </section>
 
           <section className="panel" aria-label="Static single assignment form">
-            <SSAViewer src={src} srcPos={srcPos} ssa={ssa} theme={theme} />
+            <SSAViewer
+              ssa={ssa}
+              sourceLine={srcPos.lineNumber}
+              onSourceLineSelect={handleAnalysisLineSelect}
+              theme={theme}
+            />
           </section>
 
           <div

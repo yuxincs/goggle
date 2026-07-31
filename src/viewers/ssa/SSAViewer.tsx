@@ -1,35 +1,55 @@
 import { CodeViewer } from "../CodeViewer.tsx";
-import React from "react";
-import { IPosition } from "monaco-editor";
+import React, { useMemo } from "react";
 import { ViewerTitle } from "../ViewerTitle.tsx";
 import { VIEWER_TITLE_HEIGHT } from "../../constants.ts";
 import { SSAFunction } from "../../analysis.ts";
 import { formatSSA } from "./format.ts";
+import {
+  displayLineForSourceLine,
+  FormattedAnalysis,
+  sourceLineForDisplayLine,
+} from "../lineMapping.ts";
 
 interface SSAViewerProps {
-  src: string;
-  srcPos: IPosition;
   ssa: SSAFunction[] | string | null;
+  sourceLine: number;
+  onSourceLineSelect: (line: number) => void;
   theme: "light" | "dark";
 }
 
 export const SSAViewer: React.FC<SSAViewerProps> = (props: SSAViewerProps) => {
-  let content: string;
-
-  if (props.ssa === null) {
-    content = `SSA unavailable, try adding function declarations to the source`;
-  } else if (typeof props.ssa === "string") {
-    content = props.ssa;
-  } else {
-    content = formatSSA(props.ssa);
-  }
+  const formatted = useMemo<FormattedAnalysis>(() => {
+    if (props.ssa === null) {
+      return {
+        content: "SSA unavailable, try adding function declarations to the source",
+        sourceLines: [],
+      };
+    }
+    if (typeof props.ssa === "string") {
+      return { content: props.ssa, sourceLines: [] };
+    }
+    return formatSSA(props.ssa);
+  }, [props.ssa]);
+  const displayLine = displayLineForSourceLine(
+    formatted.sourceLines,
+    props.sourceLine,
+  );
 
   return (
     <>
       <ViewerTitle sx={{ height: VIEWER_TITLE_HEIGHT }}>SSA</ViewerTitle>
       <CodeViewer
-        content={content}
-        line={props.srcPos.lineNumber}
+        content={formatted.content}
+        line={displayLine}
+        onCursorChange={(event) => {
+          const sourceLine = sourceLineForDisplayLine(
+            formatted.sourceLines,
+            event.position.lineNumber,
+          );
+          if (sourceLine !== undefined) {
+            props.onSourceLineSelect(sourceLine);
+          }
+        }}
         readOnly={true}
         theme={props.theme}
         height={`calc(100% - ${VIEWER_TITLE_HEIGHT})`}
