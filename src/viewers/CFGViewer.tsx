@@ -3,33 +3,24 @@ import React from "react";
 import { IPosition } from "monaco-editor";
 import { ViewerTitle } from "./ViewerTitle.tsx";
 import { VIEWER_TITLE_HEIGHT } from "../constants.ts";
-
-interface CFG {
-  name: string;
-  repr: string;
-  dot: string;
-}
+import { CFGFunction, formatCFGs } from "../analysis.ts";
 
 interface CFGViewerProps {
   src: string;
   srcPos: IPosition;
-  cfgs: CFG[] | string | undefined | null;
+  cfgs: CFGFunction[] | string | null;
   theme: "light" | "dark";
 }
 
 export const CFGViewer: React.FC<CFGViewerProps> = (props: CFGViewerProps) => {
   let content: string;
 
-  if (props.cfgs === undefined || props.cfgs === null) {
+  if (props.cfgs === null) {
     content = `CFG unavailable, try adding function declarations to the source`;
   } else if (typeof props.cfgs === "string") {
     content = props.cfgs;
   } else {
-    const parts = [];
-    for (const cfg of props.cfgs) {
-      parts.push(`${cfg.name}\n${cfg.repr}`);
-    }
-    content = parts.join("\n");
+    content = formatCFGs(props.cfgs);
   }
 
   return (

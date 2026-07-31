@@ -3,20 +3,27 @@ import React from "react";
 import { IPosition } from "monaco-editor";
 import { ViewerTitle } from "./ViewerTitle.tsx";
 import { VIEWER_TITLE_HEIGHT } from "../constants.ts";
+import { ASTNode, formatAST } from "../analysis.ts";
 
 interface ASTViewerProps {
   src: string;
   srcPos: IPosition;
-  ast: string;
+  ast: ASTNode | string | null;
   theme: "light" | "dark";
 }
 
 export const ASTViewer: React.FC<ASTViewerProps> = (props: ASTViewerProps) => {
+  const content = props.ast === null
+    ? "AST unavailable"
+    : typeof props.ast === "string"
+      ? props.ast
+      : formatAST(props.ast);
+
   return (
     <>
       <ViewerTitle sx={{ height: VIEWER_TITLE_HEIGHT }}>AST</ViewerTitle>
       <CodeViewer
-        content={props.ast}
+        content={content}
         line={props.srcPos.lineNumber}
         readOnly={true}
         theme={props.theme}

@@ -6,6 +6,12 @@ import { CFGViewer } from "./viewers/CFGViewer.tsx";
 import { SSAViewer } from "./viewers/SSAViewer.tsx";
 import { SourceEditor } from "./viewers/SourceEditor.tsx";
 import { Title } from "./title/Title.tsx";
+import {
+  AnalysisResult,
+  ASTNode,
+  CFGFunction,
+  SSAFunction,
+} from "./analysis.ts";
 
 // We store the Go source and the last cursor position in local storage such that users will not lose their input.
 const defaultCode = `// You can edit this code!
@@ -41,9 +47,9 @@ export const App = () => {
   const [rightRowSplit, setRightRowSplit] = useState(50);
   const workspaceRef = useRef<HTMLElement>(null);
 
-  const [ast, setAST] = useState<string>("");
-  const [cfgs, setCFGs] = useState<string>("");
-  const [ssa, setSSA] = useState<string>("");
+  const [ast, setAST] = useState<ASTNode | string | null>(null);
+  const [cfgs, setCFGs] = useState<CFGFunction[] | string | null>(null);
+  const [ssa, setSSA] = useState<SSAFunction[] | string | null>(null);
 
   // Start Go WebAssembly such that the parse function is available in global this.
   // Then, load the source and position from local storage and set then.
@@ -89,7 +95,7 @@ export const App = () => {
       return;
     }
 
-    const body = JSON.parse(result.body);
+    const body = JSON.parse(result.body) as AnalysisResult;
     setAST(body.ast);
     setCFGs(body.cfgs);
     setSSA(body.ssa);
@@ -97,7 +103,7 @@ export const App = () => {
 
   const handleSrcPosChange = (pos: IPosition) => setSrcPos(pos);
 
-  const hasError = ast.startsWith("ERROR:");
+  const hasError = typeof ast === "string" && ast.startsWith("ERROR:");
 
   type Splitter = "column" | "leftRow" | "rightRow";
 
