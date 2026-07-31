@@ -3,21 +3,24 @@ import React from "react";
 import { IPosition } from "monaco-editor";
 import { ViewerTitle } from "./ViewerTitle.tsx";
 import { VIEWER_TITLE_HEIGHT } from "../constants.ts";
+import { formatSSA, SSAFunction } from "../analysis.ts";
 
 interface SSAViewerProps {
   src: string;
   srcPos: IPosition;
-  ssa: string | undefined | null;
+  ssa: SSAFunction[] | string | null;
   theme: "light" | "dark";
 }
 
 export const SSAViewer: React.FC<SSAViewerProps> = (props: SSAViewerProps) => {
   let content: string;
 
-  if (props.ssa === undefined || props.ssa === null) {
+  if (props.ssa === null) {
     content = `SSA unavailable, try adding function declarations to the source`;
-  } else {
+  } else if (typeof props.ssa === "string") {
     content = props.ssa;
+  } else {
+    content = formatSSA(props.ssa);
   }
 
   return (
