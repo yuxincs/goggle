@@ -16,7 +16,7 @@ export const ViewerTitle = styled("div")({
   background: "var(--panel-title-bg)",
   borderBottom: "1px solid var(--panel-title-border)",
   "&::before": {
-    content: '\"\"',
+    content: '""',
     width: "7px",
     height: "7px",
     marginRight: "9px",
