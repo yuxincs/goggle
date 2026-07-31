@@ -1,5 +1,5 @@
 import { editor } from "monaco-editor";
-import { useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Editor } from "@monaco-editor/react";
 import ScrollType = editor.ScrollType;
 
@@ -19,14 +19,16 @@ export const CodeViewer = (props: CodeViewerProps) => {
   const editorRef = useRef<editor.IStandaloneCodeEditor>(null);
   const onCursorChangeRef = useRef(props.onCursorChange);
   const suppressCursorChangeRef = useRef(false);
-  onCursorChangeRef.current = props.onCursorChange;
+  useEffect(() => {
+    onCursorChangeRef.current = props.onCursorChange;
+  }, [props.onCursorChange]);
 
   // We intentionally do not use the `value` and `line` props of the `Editor` component since it does not provide
   // a way to reveal the line in center (it puts the line as the first line, which leads to bad UX). This means we
   // have to do updates ourselves. Furthermore, we cannot do partial updates ourselves (e.g., use `value` props and
   // update line ourselves), since internally `Editor` component would reset our line update. Therefore, here we define
   // an updater that updates everything we need to update. All updates within this component _must_ be handled by it.
-  const update = (content: string | undefined, line: number | undefined) => {
+  const update = useCallback((content: string | undefined, line: number | undefined) => {
     const ref = editorRef.current;
     if (ref == null) {
       return;
@@ -51,7 +53,7 @@ export const CodeViewer = (props: CodeViewerProps) => {
     } finally {
       suppressCursorChangeRef.current = false;
     }
-  };
+  }, []);
 
   const handleOnMount = (editor: editor.IStandaloneCodeEditor) => {
     // Keep a ref for other uses.
@@ -80,7 +82,9 @@ export const CodeViewer = (props: CodeViewerProps) => {
     props.onChange(code ?? "");
   };
 
-  update(props.content, props.line);
+  useEffect(() => {
+    update(props.content, props.line);
+  }, [props.content, props.line, update]);
 
   return (
     <Editor

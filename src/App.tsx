@@ -32,8 +32,8 @@ func main() {
 `
 const storedSrc = localStorage.getItem("src") ?? defaultCode;
 const storedPos: IPosition = {
-  lineNumber: Number(localStorage.getItem("srcLine")) ?? 1,
-  column: Number(localStorage.getItem("srcCol")) ?? 1,
+  lineNumber: Number(localStorage.getItem("srcLine") ?? "1"),
+  column: Number(localStorage.getItem("srcCol") ?? "1"),
 };
 const storedTheme = (localStorage.getItem("theme") as "light" | "dark" | null) ?? "dark";
 
@@ -69,7 +69,7 @@ export const App = () => {
   }, [srcPos]);
   useEffect(() => localStorage.setItem("theme", theme), [theme]);
 
-  const handleSrcChange = (code: string | undefined) => {
+  function handleSrcChange(code: string | undefined) {
     const renderError = (error: string) => {
       setAST(`ERROR: ${error}`);
       setCFGs(`ERROR: ${error}`);
@@ -99,15 +99,15 @@ export const App = () => {
     setAST(body.ast);
     setCFGs(body.cfgs);
     setSSA(body.ssa);
-  };
+  }
 
-  const handleSrcPosChange = (pos: IPosition) => {
+  function handleSrcPosChange(pos: IPosition) {
     setSrcPos((current) =>
       current.lineNumber === pos.lineNumber && current.column === pos.column
         ? current
         : pos
     );
-  };
+  }
 
   const handleAnalysisLineSelect = (lineNumber: number) => {
     setSrcPos((current) =>
