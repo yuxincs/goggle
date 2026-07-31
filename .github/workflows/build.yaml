@@ -18,9 +18,14 @@ jobs:
         with:
           go-version-file: 'wasm/go.mod'
 
-      - name: Run Go unit tests
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 'latest'
+
+      - name: Run Go unit tests in WebAssembly
         working-directory: wasm
-        run: go test ./...
+        run: GOOS=js GOARCH=wasm go test -exec="$(go env GOROOT)/lib/wasm/go_js_wasm_exec" ./...
 
   build:
     strategy:
