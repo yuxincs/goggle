@@ -1,14 +1,13 @@
 package ssa_test
 
 import (
-	"bytes"
 	"encoding/json"
 	"go/parser"
 	"go/token"
-	"os"
 	"path/filepath"
 	"testing"
 
+	"github.com/yuxincs/goggle/goggletest"
 	ssaanalysis "github.com/yuxincs/goggle/ssa"
 )
 
@@ -30,17 +29,9 @@ func TestAnalyzeGolden(t *testing.T) {
 	}
 	actual = append(actual, '\n')
 
-	assertGolden(t, filepath.Join("testdata", "foo.expected.json"), actual)
-}
-
-func assertGolden(t *testing.T, path string, actual []byte) {
-	t.Helper()
-
-	expected, err := os.ReadFile(path)
-	if err != nil {
-		t.Fatalf("read golden file: %v\nactual:\n%s", err, actual)
-	}
-	if !bytes.Equal(actual, expected) {
-		t.Errorf("golden file mismatch\nexpected:\n%s\nactual:\n%s", expected, actual)
-	}
+	goggletest.AssertGolden(
+		t,
+		filepath.Join("testdata", "foo.expected.json"),
+		actual,
+	)
 }
