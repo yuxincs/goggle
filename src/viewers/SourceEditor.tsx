@@ -7,7 +7,7 @@ interface SourceEditorProps {
   onChange: (code: string | undefined) => void;
   onCursorChange: (event: editor.ICursorPositionChangedEvent) => void;
   initialContent: string;
-  initialPosition: IPosition;
+  position: IPosition;
   theme: "light" | "dark";
 }
 
@@ -17,7 +17,8 @@ export const SourceEditor = (props: SourceEditorProps) => {
       <ViewerTitle sx={{ height: VIEWER_TITLE_HEIGHT }}>Go Source</ViewerTitle>
       <CodeViewer
         initialContent={props.initialContent}
-        initialLine={props.initialPosition.lineNumber}
+        initialLine={props.position.lineNumber}
+        line={props.position.lineNumber}
         onChange={props.onChange}
         onCursorChange={props.onCursorChange}
         theme={props.theme}
