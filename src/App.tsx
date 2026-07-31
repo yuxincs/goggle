@@ -1,9 +1,9 @@
 import { KeyboardEvent, PointerEvent, useEffect, useRef, useState } from "react";
 import { IPosition } from "monaco-editor";
 import { loadGoggleWasm } from "./utils/wasm.ts";
-import { ASTViewer } from "./viewers/ASTViewer.tsx";
-import { CFGViewer } from "./viewers/CFGViewer.tsx";
-import { SSAViewer } from "./viewers/SSAViewer.tsx";
+import { ASTViewer } from "./viewers/ast/ASTViewer.tsx";
+import { CFGViewer } from "./viewers/cfg/CFGViewer.tsx";
+import { SSAViewer } from "./viewers/ssa/SSAViewer.tsx";
 import { SourceEditor } from "./viewers/SourceEditor.tsx";
 import { Title } from "./title/Title.tsx";
 import {

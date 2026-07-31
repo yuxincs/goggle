@@ -1,9 +1,10 @@
-import { CodeViewer } from "./CodeViewer.tsx";
+import { CodeViewer } from "../CodeViewer.tsx";
 import React from "react";
 import { IPosition } from "monaco-editor";
-import { ViewerTitle } from "./ViewerTitle.tsx";
-import { VIEWER_TITLE_HEIGHT } from "../constants.ts";
-import { ASTNode, formatAST } from "../analysis.ts";
+import { ViewerTitle } from "../ViewerTitle.tsx";
+import { VIEWER_TITLE_HEIGHT } from "../../constants.ts";
+import { ASTNode } from "../../analysis.ts";
+import { formatAST } from "./format.ts";
 
 interface ASTViewerProps {
   src: string;
