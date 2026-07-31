@@ -1,0 +1,191 @@
+[
+  {
+    "name": "choose",
+    "range": {
+      "start": {
+        "offset": 16,
+        "line": 3,
+        "column": 1
+      },
+      "end": {
+        "offset": 77,
+        "line": 8,
+        "column": 2
+      }
+    },
+    "noReturn": false,
+    "blocks": [
+      {
+        "index": 0,
+        "kind": "Body",
+        "live": true,
+        "statement": {
+          "type": "BlockStmt",
+          "range": {
+            "start": {
+              "offset": 41,
+              "line": 3,
+              "column": 26
+            },
+            "end": {
+              "offset": 77,
+              "line": 8,
+              "column": 2
+            }
+          },
+          "source": "{\n\tif ok {\n\t\treturn 1\n\t}\n\treturn 0\n}"
+        },
+        "nodes": [
+          {
+            "type": "Ident",
+            "range": {
+              "start": {
+                "offset": 47,
+                "line": 4,
+                "column": 5
+              },
+              "end": {
+                "offset": 49,
+                "line": 4,
+                "column": 7
+              }
+            },
+            "source": "ok"
+          }
+        ],
+        "successors": [
+          1,
+          2
+        ]
+      },
+      {
+        "index": 1,
+        "kind": "IfThen",
+        "live": true,
+        "statement": {
+          "type": "IfStmt",
+          "range": {
+            "start": {
+              "offset": 44,
+              "line": 4,
+              "column": 2
+            },
+            "end": {
+              "offset": 65,
+              "line": 6,
+              "column": 3
+            }
+          },
+          "source": "if ok {\n\treturn 1\n}"
+        },
+        "nodes": [
+          {
+            "type": "ReturnStmt",
+            "range": {
+              "start": {
+                "offset": 54,
+                "line": 5,
+                "column": 3
+              },
+              "end": {
+                "offset": 62,
+                "line": 5,
+                "column": 11
+              }
+            },
+            "source": "return 1"
+          }
+        ],
+        "successors": []
+      },
+      {
+        "index": 2,
+        "kind": "IfDone",
+        "live": true,
+        "statement": {
+          "type": "IfStmt",
+          "range": {
+            "start": {
+              "offset": 44,
+              "line": 4,
+              "column": 2
+            },
+            "end": {
+              "offset": 65,
+              "line": 6,
+              "column": 3
+            }
+          },
+          "source": "if ok {\n\treturn 1\n}"
+        },
+        "nodes": [
+          {
+            "type": "ReturnStmt",
+            "range": {
+              "start": {
+                "offset": 67,
+                "line": 7,
+                "column": 2
+              },
+              "end": {
+                "offset": 75,
+                "line": 7,
+                "column": 10
+              }
+            },
+            "source": "return 0"
+          }
+        ],
+        "successors": []
+      },
+      {
+        "index": 3,
+        "kind": "Unreachable",
+        "live": false,
+        "statement": {
+          "type": "ReturnStmt",
+          "range": {
+            "start": {
+              "offset": 54,
+              "line": 5,
+              "column": 3
+            },
+            "end": {
+              "offset": 62,
+              "line": 5,
+              "column": 11
+            }
+          },
+          "source": "return 1"
+        },
+        "nodes": [],
+        "successors": [
+          2
+        ]
+      },
+      {
+        "index": 4,
+        "kind": "Unreachable",
+        "live": false,
+        "statement": {
+          "type": "ReturnStmt",
+          "range": {
+            "start": {
+              "offset": 67,
+              "line": 7,
+              "column": 2
+            },
+            "end": {
+              "offset": 75,
+              "line": 7,
+              "column": 10
+            }
+          },
+          "source": "return 0"
+        },
+        "nodes": [],
+        "successors": []
+      }
+    ]
+  }
+]
