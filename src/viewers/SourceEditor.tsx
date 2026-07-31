@@ -6,6 +6,7 @@ import { VIEWER_TITLE_HEIGHT } from "../constants.ts";
 interface SourceEditorProps {
   onChange: (code: string | undefined) => void;
   onCursorChange: (event: editor.ICursorPositionChangedEvent) => void;
+  onReady: () => void;
   initialContent: string;
   position: IPosition;
   theme: "light" | "dark";
@@ -21,6 +22,7 @@ export const SourceEditor = (props: SourceEditorProps) => {
         line={props.position.lineNumber}
         onChange={props.onChange}
         onCursorChange={props.onCursorChange}
+        onReady={props.onReady}
         theme={props.theme}
         height={`calc(100% - ${VIEWER_TITLE_HEIGHT})`}
       />

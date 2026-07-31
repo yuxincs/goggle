@@ -41,6 +41,7 @@ export const App = () => {
   const [src, setSrc] = useState<string>(storedSrc);
   const [srcPos, setSrcPos] = useState<IPosition>(storedPos);
   const [isReady, setIsReady] = useState(false);
+  const [isSourceReady, setIsSourceReady] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">(storedTheme);
   const [columnSplit, setColumnSplit] = useState(50);
   const [leftRowSplit, setLeftRowSplit] = useState(50);
@@ -54,11 +55,27 @@ export const App = () => {
   // Start Go WebAssembly such that the parse function is available in global this.
   // Then, load the source and position from local storage and set then.
   useEffect(() => {
-    loadGoggleWasm().then(() => {
-      setIsReady(true);
-      handleSrcChange(storedSrc);
-      handleSrcPosChange(storedPos);
-    });
+    let isCurrent = true;
+
+    loadGoggleWasm()
+      .then(() => {
+        if (!isCurrent) return;
+        handleSrcChange(storedSrc);
+        handleSrcPosChange(storedPos);
+        setIsReady(true);
+      })
+      .catch((error: unknown) => {
+        if (!isCurrent) return;
+        const message = error instanceof Error ? error.message : String(error);
+        setAST(`ERROR: ${message}`);
+        setCFGs(`ERROR: ${message}`);
+        setSSA(`ERROR: ${message}`);
+        setIsReady(true);
+      });
+
+    return () => {
+      isCurrent = false;
+    };
   }, []);
 
   // Update source and position in local storage anytime they change.
@@ -119,6 +136,7 @@ export const App = () => {
 
   const hasError = typeof ast === "string" && ast.startsWith("ERROR:");
   const isAnalysisReady = isReady &&
+    isSourceReady &&
     typeof ast !== "string" &&
     Array.isArray(cfgs) &&
     Array.isArray(ssa);
@@ -198,6 +216,7 @@ export const App = () => {
               position={srcPos}
               onChange={handleSrcChange}
               onCursorChange={(event) => handleSrcPosChange(event.position)}
+              onReady={() => setIsSourceReady(true)}
               theme={theme}
             />
           </section>
