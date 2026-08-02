@@ -33,7 +33,7 @@ def show_completion(page):
 
     quick_input = page.locator(".quick-input-widget")
     quick_input.wait_for(state="visible", timeout=ANALYSIS_TIMEOUT)
-    quick_input.locator("input").fill(COMPLETION_POSITION)
+    quick_input.get_by_role("combobox").fill(COMPLETION_POSITION)
     page.keyboard.press("Enter")
 
     page.keyboard.press("Control+Space")
