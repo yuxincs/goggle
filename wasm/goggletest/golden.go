@@ -1,19 +1,16 @@
 package goggletest
 
 import (
-	"bytes"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func AssertGolden(t testing.TB, path string, actual []byte) {
 	t.Helper()
 
 	expected, err := os.ReadFile(path)
-	if err != nil {
-		t.Fatalf("read golden file: %v\nactual:\n%s", err, actual)
-	}
-	if !bytes.Equal(actual, expected) {
-		t.Errorf("golden file mismatch\nexpected:\n%s\nactual:\n%s", expected, actual)
-	}
+	require.NoError(t, err, "read golden file\nactual:\n%s", actual)
+	require.Equal(t, expected, actual, "golden file mismatch")
 }
