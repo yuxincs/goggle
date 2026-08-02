@@ -5,6 +5,9 @@ import "../index.css";
 import "@fontsource/inter";
 import "@fontsource/jetbrains-mono";
 import "@fontsource/jetbrains-mono/800.css";
+import { registerGoIDE } from "../editor/ide.ts";
+
+registerGoIDE();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
