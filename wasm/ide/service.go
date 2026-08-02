@@ -12,8 +12,6 @@ import (
 	"github.com/yuxincs/goggle/internal/stdlib"
 )
 
-var ErrNotImplemented = errors.New("IDE capability is not implemented")
-
 type Service struct {
 	snapshot *snapshot
 }
@@ -79,10 +77,6 @@ func (service *Service) Update(document Document) error {
 	}
 	service.snapshot = snapshot
 	return nil
-}
-
-func (service *Service) SignatureHelp(DocumentPosition) (*SignatureHelp, error) {
-	return nil, fmt.Errorf("signature help: %w", ErrNotImplemented)
 }
 
 func (service *Service) snapshotFor(params DocumentPosition) (*snapshot, error) {

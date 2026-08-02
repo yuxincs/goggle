@@ -8,6 +8,7 @@ import {
   completeGo,
   defineGo,
   hoverGo,
+  signatureHelpGo,
   updateIDEDocument,
 } from "../wasm/client.ts";
 
@@ -112,6 +113,35 @@ export const registerGoIDE = () => {
         return {
           uri: Uri.parse(definition.uri),
           range: toMonacoRange(definition.range),
+        };
+      },
+    }),
+    languages.registerSignatureHelpProvider(selector, {
+      signatureHelpTriggerCharacters: ["(", ","],
+      signatureHelpRetriggerCharacters: [","],
+      provideSignatureHelp: async (model, position, token) => {
+        if (model.uri.toString() !== GO_SOURCE_URI) return null;
+
+        await synchronizeDocument(model);
+        if (token.isCancellationRequested) return null;
+
+        const help = await signatureHelpGo(documentPosition(model, position));
+        if (help === null || token.isCancellationRequested) return null;
+
+        return {
+          value: {
+            signatures: help.signatures.map((signature) => ({
+              label: signature.label,
+              documentation: signature.documentation,
+              parameters: signature.parameters.map((parameter) => ({
+                label: parameter.label,
+                documentation: parameter.documentation,
+              })),
+            })),
+            activeSignature: help.activeSignature,
+            activeParameter: help.activeParameter,
+          },
+          dispose: () => {},
         };
       },
     }),
