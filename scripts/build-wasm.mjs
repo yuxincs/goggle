@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const rootDirectory = join(dirname(fileURLToPath(import.meta.url)), "..");
 const wasmDirectory = join(rootDirectory, "wasm");
-const assetsDirectory = join(rootDirectory, "src", "assets");
+const assetsDirectory = join(rootDirectory, "src", "wasm", "generated");
 
 function runGo(arguments_, options = {}) {
   return execFileSync("go", arguments_, {

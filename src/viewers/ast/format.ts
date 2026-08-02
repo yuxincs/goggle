@@ -1,5 +1,5 @@
 import { ASTNode, SourceRange } from "../../wasm/protocol.ts";
-import { FormattedAnalysis } from "../lineMapping.ts";
+import { FormattedAnalysis } from "../shared/lineMapping.ts";
 
 const formatPosition = (line: number, column: number) => `${line}:${column}`;
 

@@ -1,6 +1,6 @@
-import { CodeViewer } from "./CodeViewer.tsx";
+import { CodeViewer } from "../viewers/shared/CodeViewer.tsx";
 import { editor, IPosition } from "monaco-editor";
-import { ViewerTitle } from "./ViewerTitle.tsx";
+import { ViewerTitle } from "../viewers/shared/ViewerTitle.tsx";
 import { VIEWER_TITLE_HEIGHT } from "../constants.ts";
 
 interface SourceEditorProps {

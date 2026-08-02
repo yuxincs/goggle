@@ -3,7 +3,7 @@ import GitHubIcon from "@mui/icons-material/GitHub";
 import CodeRoundedIcon from "@mui/icons-material/CodeRounded";
 import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
 import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded";
-import { PROJECT_URL } from "../constants.ts";
+import { PROJECT_URL } from "../../constants.ts";
 
 interface TitleProps {
   isReady: boolean;
