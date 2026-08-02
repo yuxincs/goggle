@@ -18,11 +18,14 @@ const defaultCode = `// You can edit this code!
 // Click here and start typing.
 package main
 
-func foo() bool { return true }
+import "go/ast"
+
+func foo(node ast.Node) bool { return node != nil }
 
 func main() {
     var dummy bool
-    ok := foo()
+    var node ast.Node
+    ok := foo(node)
     if dummy {
         if ok {
             print(ok)
