@@ -1,4 +1,4 @@
-package main
+package analyzer
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ type Result struct {
 	SSA  []*ssaanalysis.Function `json:"ssa"`
 }
 
-func parse(src string) (*Result, error) {
+func Analyze(src string) (*Result, error) {
 	fset := token.NewFileSet()
 	file, err := parser.ParseFile(fset, "main.go", src, parser.ParseComments)
 	if err != nil {
