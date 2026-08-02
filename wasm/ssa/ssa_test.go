@@ -5,6 +5,7 @@ import (
 	"go/parser"
 	"go/token"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -13,20 +14,30 @@ import (
 )
 
 func TestAnalyzeGolden(t *testing.T) {
-	fset := token.NewFileSet()
-	inputPath := filepath.Join("testdata", "foo.input.go")
-	file, err := parser.ParseFile(fset, inputPath, nil, parser.ParseComments)
-	require.NoError(t, err, "parse input")
+	inputPaths, err := filepath.Glob(filepath.Join("testdata", "*.input.go"))
+	require.NoError(t, err, "discover input files")
+	require.Positive(t, len(inputPaths), "no SSA fixtures matching testdata/*.input.go were found")
 
-	actualResult, err := ssaanalysis.Analyze(fset, file)
-	require.NoError(t, err, "analyze SSA")
-	actual, err := json.MarshalIndent(actualResult, "", "  ")
-	require.NoError(t, err, "marshal SSA")
-	actual = append(actual, '\n')
+	for _, inputPath := range inputPaths {
+		name := strings.TrimSuffix(filepath.Base(inputPath), ".input.go")
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
 
-	goggletest.AssertGolden(
-		t,
-		filepath.Join("testdata", "foo.expected.json"),
-		actual,
-	)
+			fset := token.NewFileSet()
+			file, err := parser.ParseFile(fset, inputPath, nil, parser.ParseComments)
+			require.NoError(t, err, "parse input")
+
+			actualResult, err := ssaanalysis.Analyze(fset, file)
+			require.NoError(t, err, "analyze SSA")
+			actual, err := json.MarshalIndent(actualResult, "", "  ")
+			require.NoError(t, err, "marshal SSA")
+			actual = append(actual, '\n')
+
+			goggletest.AssertGolden(
+				t,
+				strings.TrimSuffix(inputPath, ".input.go")+".expected.json",
+				actual,
+			)
+		})
+	}
 }
