@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"github.com/yuxincs/goggle/goggletest"
 	ssaanalysis "github.com/yuxincs/goggle/ssa"
 )
@@ -15,18 +16,12 @@ func TestAnalyzeGolden(t *testing.T) {
 	fset := token.NewFileSet()
 	inputPath := filepath.Join("testdata", "foo.input.go")
 	file, err := parser.ParseFile(fset, inputPath, nil, parser.ParseComments)
-	if err != nil {
-		t.Fatalf("parse input: %v", err)
-	}
+	require.NoError(t, err, "parse input")
 
 	actualResult, err := ssaanalysis.Analyze(fset, file)
-	if err != nil {
-		t.Fatalf("analyze SSA: %v", err)
-	}
+	require.NoError(t, err, "analyze SSA")
 	actual, err := json.MarshalIndent(actualResult, "", "  ")
-	if err != nil {
-		t.Fatalf("marshal SSA: %v", err)
-	}
+	require.NoError(t, err, "marshal SSA")
 	actual = append(actual, '\n')
 
 	goggletest.AssertGolden(
