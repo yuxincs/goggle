@@ -1,4 +1,12 @@
-import type { WasmParseResult } from "./protocol.ts";
+import type {
+  IDEDocument,
+  IDEDocumentPosition,
+  IDEHover,
+  IDELocation,
+  IDECompletionList,
+  IDESignatureHelp,
+  WasmParseResult,
+} from "./protocol.ts";
 import type {
   WorkerMethod,
   WorkerRequest,
@@ -56,3 +64,22 @@ export const loadGoggleWasm = async () => {
 
 export const parseGoSource = (source: string): Promise<WasmParseResult> =>
   request("analyze", { source });
+
+export const updateIDEDocument = (document: IDEDocument): Promise<null> =>
+  request("ide/update", document);
+
+export const completeGo = (
+  params: IDEDocumentPosition,
+): Promise<IDECompletionList> => request("ide/completion", params);
+
+export const hoverGo = (
+  params: IDEDocumentPosition,
+): Promise<IDEHover | null> => request("ide/hover", params);
+
+export const defineGo = (
+  params: IDEDocumentPosition,
+): Promise<IDELocation | null> => request("ide/definition", params);
+
+export const signatureHelpGo = (
+  params: IDEDocumentPosition,
+): Promise<IDESignatureHelp | null> => request("ide/signatureHelp", params);

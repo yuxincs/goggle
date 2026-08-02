@@ -2,7 +2,12 @@
 
 import "./generated/wasm_exec.js";
 import goggleWasm from "./generated/goggle.wasm?url";
-import type { WasmParseResult } from "./protocol.ts";
+import type {
+  IDEMethod,
+  IDERequestMap,
+  IDEResultMap,
+  WasmParseResult,
+} from "./protocol.ts";
 import type { WorkerRequest, WorkerResponse } from "./workerProtocol.ts";
 
 const PARSER_TIMEOUT = 30_000;
@@ -61,14 +66,46 @@ const analyze = async (source: string): Promise<WasmParseResult> => {
   return result;
 };
 
+const requestIDE = async <Method extends IDEMethod>(
+  method: Method,
+  params: IDERequestMap[Method],
+): Promise<IDEResultMap[Method]> => {
+  await loadGoggleWasm();
+  const response = globalThis.ide?.(JSON.stringify({ method, params }));
+  if (response === undefined) {
+    throw new Error("Go WebAssembly IDE service is unavailable");
+  }
+  if (response.error !== undefined) {
+    throw new Error(response.error);
+  }
+  return JSON.parse(response.body) as IDEResultMap[Method];
+};
+
+const execute = (request: WorkerRequest): Promise<unknown> => {
+  switch (request.method) {
+    case "initialize":
+      return loadGoggleWasm().then(() => null);
+    case "analyze":
+      return analyze(request.params.source);
+    case "ide/update":
+      return requestIDE("update", request.params);
+    case "ide/completion":
+      return requestIDE("completion", request.params);
+    case "ide/hover":
+      return requestIDE("hover", request.params);
+    case "ide/definition":
+      return requestIDE("definition", request.params);
+    case "ide/signatureHelp":
+      return requestIDE("signatureHelp", request.params);
+  }
+};
+
 self.addEventListener("message", (event: MessageEvent<WorkerRequest>) => {
   const request = event.data;
 
   void (async () => {
     try {
-      const result = request.method === "initialize"
-        ? await loadGoggleWasm().then(() => null)
-        : await analyze(request.params.source);
+      const result = await execute(request);
       const response: WorkerResponse = { id: request.id, result };
       self.postMessage(response);
     } catch (error: unknown) {

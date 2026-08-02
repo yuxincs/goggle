@@ -2,6 +2,7 @@ import { CodeViewer } from "../viewers/shared/CodeViewer.tsx";
 import { editor, IPosition } from "monaco-editor";
 import { ViewerTitle } from "../viewers/shared/ViewerTitle.tsx";
 import { VIEWER_TITLE_HEIGHT } from "../constants.ts";
+import { GO_SOURCE_URI } from "./ide.ts";
 
 interface SourceEditorProps {
   onChange: (code: string | undefined) => void;
@@ -17,6 +18,7 @@ export const SourceEditor = (props: SourceEditorProps) => {
     <>
       <ViewerTitle sx={{ height: VIEWER_TITLE_HEIGHT }}>Go Source</ViewerTitle>
       <CodeViewer
+        path={GO_SOURCE_URI}
         initialContent={props.initialContent}
         initialLine={props.position.lineNumber}
         line={props.position.lineNumber}

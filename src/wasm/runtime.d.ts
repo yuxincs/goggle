@@ -11,6 +11,7 @@ declare global {
   };
 
   var parse: ((source: string) => WasmParseResult) | undefined;
+  var ide: ((request: string) => WasmParseResult) | undefined;
 }
 
 export {};

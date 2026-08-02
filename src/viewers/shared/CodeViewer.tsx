@@ -4,6 +4,7 @@ import { Editor } from "@monaco-editor/react";
 import ScrollType = editor.ScrollType;
 
 export interface CodeViewerProps {
+  readonly path?: string;
   readonly content?: string;
   readonly initialContent?: string;
   readonly line?: number;
@@ -99,6 +100,7 @@ export const CodeViewer = (props: CodeViewerProps) => {
 
   return (
     <Editor
+      path={props.path}
       height={props.height ?? "100%"}
       language="go"
       theme={props.theme === "light" ? "goggle-light" : "goggle-dark"}
