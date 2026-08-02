@@ -48,8 +48,29 @@ jobs:
         with:
           go-version-file: 'wasm/go.mod'
 
+      - name: Setup Python
+        if: runner.os == 'Linux'
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.x'
+
       - name: Install dependencies
         run: npm install
 
       - name: Build project
         run: npm run build
+
+      - name: Install screenshot dependencies
+        if: runner.os == 'Linux'
+        run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Test screenshot
+        if: runner.os == 'Linux'
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 5173 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          curl --retry 30 --retry-delay 1 --retry-connrefused --silent --fail http://127.0.0.1:5173/ --output /dev/null
+          python .github/workflows/screenshot.py
