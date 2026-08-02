@@ -4,7 +4,7 @@ import type {
   IDEDocumentPosition,
   IDERange,
 } from "../wasm/protocol.ts";
-import { completeGo, updateIDEDocument } from "../wasm/client.ts";
+import { completeGo, hoverGo, updateIDEDocument } from "../wasm/client.ts";
 
 export const GO_SOURCE_URI = "file:///main.go";
 
@@ -49,30 +49,54 @@ const documentPosition = (
   },
 });
 
-export const registerGoIDE = () => languages.registerCompletionItemProvider(
-  { language: "go", scheme: "file" },
-  {
-    triggerCharacters: ["."],
-    provideCompletionItems: async (model, position, _context, token) => {
-      if (model.uri.toString() !== GO_SOURCE_URI) {
-        return { suggestions: [] };
-      }
+export const registerGoIDE = () => {
+  const selector = { language: "go", scheme: "file" };
+  const providers = [
+    languages.registerCompletionItemProvider(selector, {
+      triggerCharacters: ["."],
+      provideCompletionItems: async (model, position, _context, token) => {
+        if (model.uri.toString() !== GO_SOURCE_URI) {
+          return { suggestions: [] };
+        }
 
-      await synchronizeDocument(model);
-      if (token.isCancellationRequested) return { suggestions: [] };
+        await synchronizeDocument(model);
+        if (token.isCancellationRequested) return { suggestions: [] };
 
-      const completion = await completeGo(documentPosition(model, position));
-      if (token.isCancellationRequested) return { suggestions: [] };
+        const completion = await completeGo(documentPosition(model, position));
+        if (token.isCancellationRequested) return { suggestions: [] };
 
-      return {
-        suggestions: completion.items.map((item) => ({
-          label: item.label,
-          detail: item.detail,
-          insertText: item.insertText,
-          kind: completionKinds[item.kind],
-          range: toMonacoRange(item.replace),
-        })),
-      };
-    },
-  },
-);
+        return {
+          suggestions: completion.items.map((item) => ({
+            label: item.label,
+            detail: item.detail,
+            insertText: item.insertText,
+            kind: completionKinds[item.kind],
+            range: toMonacoRange(item.replace),
+          })),
+        };
+      },
+    }),
+    languages.registerHoverProvider(selector, {
+      provideHover: async (model, position, token) => {
+        if (model.uri.toString() !== GO_SOURCE_URI) return null;
+
+        await synchronizeDocument(model);
+        if (token.isCancellationRequested) return null;
+
+        const hover = await hoverGo(documentPosition(model, position));
+        if (hover === null || token.isCancellationRequested) return null;
+
+        return {
+          contents: [{ value: `\`\`\`go\n${hover.contents}\n\`\`\`` }],
+          range: hover.range === undefined
+            ? undefined
+            : toMonacoRange(hover.range),
+        };
+      },
+    }),
+  ];
+
+  return {
+    dispose: () => providers.forEach((provider) => provider.dispose()),
+  };
+};

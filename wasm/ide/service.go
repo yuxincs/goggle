@@ -81,10 +81,6 @@ func (service *Service) Update(document Document) error {
 	return nil
 }
 
-func (service *Service) Hover(DocumentPosition) (*Hover, error) {
-	return nil, fmt.Errorf("hover: %w", ErrNotImplemented)
-}
-
 func (service *Service) Definition(DocumentPosition) (*Location, error) {
 	return nil, fmt.Errorf("definition: %w", ErrNotImplemented)
 }
