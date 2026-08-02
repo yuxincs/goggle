@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/yuxincs/goggle/goggletest"
+	"github.com/yuxincs/goggle/internal/goggletest"
 	ssaanalysis "github.com/yuxincs/goggle/ssa"
 )
 

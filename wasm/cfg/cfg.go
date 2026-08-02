@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/yuxincs/goggle/source"
+	"github.com/yuxincs/goggle/internal/source"
 	toolscfg "golang.org/x/tools/go/cfg"
 )
 
