@@ -9,7 +9,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	astanalysis "github.com/yuxincs/goggle/ast"
-	"github.com/yuxincs/goggle/goggletest"
+	"github.com/yuxincs/goggle/internal/goggletest"
 )
 
 func TestAnalyzeGolden(t *testing.T) {

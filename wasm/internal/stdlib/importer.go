@@ -8,11 +8,11 @@ import (
 	"go/types"
 	"sync"
 
-	"github.com/yuxincs/goggle/stdlib/bundle"
+	"github.com/yuxincs/goggle/internal/stdlib/bundle"
 	"golang.org/x/tools/go/gcexportdata"
 )
 
-//go:generate go run ../cmd/stdlibbundle -output stdlib.bundle
+//go:generate go run ../../cmd/stdlibbundle -output stdlib.bundle
 
 //go:embed stdlib.bundle
 var bundleData []byte

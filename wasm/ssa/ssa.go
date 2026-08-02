@@ -7,8 +7,8 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/yuxincs/goggle/source"
-	"github.com/yuxincs/goggle/stdlib"
+	"github.com/yuxincs/goggle/internal/source"
+	"github.com/yuxincs/goggle/internal/stdlib"
 	toolsssa "golang.org/x/tools/go/ssa"
 	"golang.org/x/tools/go/ssa/ssautil"
 )

@@ -26,4 +26,4 @@ dist-ssr
 # Will be generated during build process.
 src/assets/*.wasm
 src/assets/wasm_exec.js
-wasm/stdlib/stdlib.bundle
+wasm/internal/stdlib/stdlib.bundle

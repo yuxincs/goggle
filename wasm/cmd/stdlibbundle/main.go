@@ -16,7 +16,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/yuxincs/goggle/stdlib/bundle"
+	"github.com/yuxincs/goggle/internal/stdlib/bundle"
 	"golang.org/x/tools/go/gcexportdata"
 )
 

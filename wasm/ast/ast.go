@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/yuxincs/goggle/source"
+	"github.com/yuxincs/goggle/internal/source"
 )
 
 type Child struct {
