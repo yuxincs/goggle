@@ -1,9 +1,11 @@
 import { CodeViewer } from "../shared/CodeViewer.tsx";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { ViewerTitle } from "../shared/ViewerTitle.tsx";
 import { VIEWER_TITLE_HEIGHT } from "../../constants.ts";
 import { SSAFunction } from "../../wasm/protocol.ts";
 import { formatSSA } from "./format.ts";
+import { SSABlocks } from "./SSABlocks.tsx";
+import { AnalysisViewMode, ViewModeToggle } from "../shared/ViewModeToggle.tsx";
 import {
   displayLineForSourceLine,
   FormattedAnalysis,
@@ -18,6 +20,7 @@ interface SSAViewerProps {
 }
 
 export const SSAViewer: React.FC<SSAViewerProps> = (props: SSAViewerProps) => {
+  const [mode, setMode] = useState<AnalysisViewMode>("visual");
   const formatted = useMemo<FormattedAnalysis>(() => {
     if (props.ssa === null) {
       return {
@@ -37,23 +40,40 @@ export const SSAViewer: React.FC<SSAViewerProps> = (props: SSAViewerProps) => {
 
   return (
     <>
-      <ViewerTitle sx={{ height: VIEWER_TITLE_HEIGHT }}>SSA</ViewerTitle>
-      <CodeViewer
-        content={formatted.content}
-        line={displayLine}
-        onCursorChange={(event) => {
-          const sourceLine = sourceLineForDisplayLine(
-            formatted.sourceLines,
-            event.position.lineNumber,
-          );
-          if (sourceLine !== undefined) {
-            props.onSourceLineSelect(sourceLine);
-          }
-        }}
-        readOnly={true}
-        theme={props.theme}
-        height={`calc(100% - ${VIEWER_TITLE_HEIGHT})`}
-      />
+      <ViewerTitle sx={{ height: VIEWER_TITLE_HEIGHT }}>
+        <span>SSA</span>
+        <ViewModeToggle label="SSA" mode={mode} onChange={setMode} />
+      </ViewerTitle>
+      {mode === "visual"
+        ? props.ssa === null
+          ? <div className="analysis-placeholder">SSA unavailable</div>
+          : typeof props.ssa === "string"
+            ? <div className="analysis-placeholder analysis-placeholder--error">{props.ssa}</div>
+            : (
+              <SSABlocks
+                functions={props.ssa}
+                sourceLine={props.sourceLine}
+                onSourceLineSelect={props.onSourceLineSelect}
+              />
+            )
+        : (
+          <CodeViewer
+            content={formatted.content}
+            line={displayLine}
+            onCursorChange={(event) => {
+              const sourceLine = sourceLineForDisplayLine(
+                formatted.sourceLines,
+                event.position.lineNumber,
+              );
+              if (sourceLine !== undefined) {
+                props.onSourceLineSelect(sourceLine);
+              }
+            }}
+            readOnly={true}
+            theme={props.theme}
+            height={`calc(100% - ${VIEWER_TITLE_HEIGHT})`}
+          />
+        )}
     </>
   );
 };
