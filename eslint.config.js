@@ -13,7 +13,7 @@ const typescriptRecommended = typescriptEslint.configs["flat/recommended"].map(
 
 export default [
   {
-    ignores: ["dist", "node_modules", "src/assets"],
+    ignores: ["dist", "node_modules", "src/wasm/generated"],
   },
   js.configs.recommended,
   ...typescriptRecommended,

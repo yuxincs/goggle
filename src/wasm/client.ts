@@ -1,5 +1,5 @@
-import "../assets/wasm_exec.js";
-import goggleWasm from "../assets/goggle.wasm?url";
+import "./generated/wasm_exec.js";
+import goggleWasm from "./generated/goggle.wasm?url";
 import type { WasmParseResult } from "./protocol.ts";
 
 const PARSER_TIMEOUT = 30_000;

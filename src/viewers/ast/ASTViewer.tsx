@@ -1,6 +1,6 @@
-import { CodeViewer } from "../CodeViewer.tsx";
+import { CodeViewer } from "../shared/CodeViewer.tsx";
 import React, { useMemo } from "react";
-import { ViewerTitle } from "../ViewerTitle.tsx";
+import { ViewerTitle } from "../shared/ViewerTitle.tsx";
 import { VIEWER_TITLE_HEIGHT } from "../../constants.ts";
 import { ASTNode } from "../../wasm/protocol.ts";
 import { formatAST } from "./format.ts";
@@ -8,7 +8,7 @@ import {
   displayLineForSourceLine,
   FormattedAnalysis,
   sourceLineForDisplayLine,
-} from "../lineMapping.ts";
+} from "../shared/lineMapping.ts";
 
 interface ASTViewerProps {
   ast: ASTNode | string | null;

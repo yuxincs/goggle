@@ -1,17 +1,17 @@
 import { KeyboardEvent, PointerEvent, useEffect, useRef, useState } from "react";
 import { IPosition } from "monaco-editor";
-import { loadGoggleWasm, parseGoSource } from "./wasm/client.ts";
-import { ASTViewer } from "./viewers/ast/ASTViewer.tsx";
-import { CFGViewer } from "./viewers/cfg/CFGViewer.tsx";
-import { SSAViewer } from "./viewers/ssa/SSAViewer.tsx";
-import { SourceEditor } from "./viewers/SourceEditor.tsx";
+import { loadGoggleWasm, parseGoSource } from "../wasm/client.ts";
+import { ASTViewer } from "../viewers/ast/ASTViewer.tsx";
+import { CFGViewer } from "../viewers/cfg/CFGViewer.tsx";
+import { SSAViewer } from "../viewers/ssa/SSAViewer.tsx";
+import { SourceEditor } from "../editor/SourceEditor.tsx";
 import { Title } from "./title/Title.tsx";
 import {
   AnalysisResult,
   ASTNode,
   CFGFunction,
   SSAFunction,
-} from "./wasm/protocol.ts";
+} from "../wasm/protocol.ts";
 
 // We store the Go source and the last cursor position in local storage such that users will not lose their input.
 const defaultCode = `// You can edit this code!
