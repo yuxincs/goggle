@@ -2,7 +2,7 @@ import { CodeViewer } from "../CodeViewer.tsx";
 import React, { useMemo } from "react";
 import { ViewerTitle } from "../ViewerTitle.tsx";
 import { VIEWER_TITLE_HEIGHT } from "../../constants.ts";
-import { ASTNode } from "../../analysis.ts";
+import { ASTNode } from "../../wasm/protocol.ts";
 import { formatAST } from "./format.ts";
 import {
   displayLineForSourceLine,

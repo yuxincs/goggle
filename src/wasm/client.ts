@@ -1,11 +1,11 @@
 import "../assets/wasm_exec.js";
 import goggleWasm from "../assets/goggle.wasm?url";
+import type { WasmParseResult } from "./protocol.ts";
 
 const PARSER_TIMEOUT = 30_000;
 let loadPromise: Promise<void> | undefined;
 
 const isParserReady = () => {
-  // @ts-expect-error: `parse` is injected into global this by the Goggle WebAssembly module.
   return typeof globalThis.parse === "function";
 };
 
@@ -32,7 +32,6 @@ const initializeGoggleWasm = async () => {
     return;
   }
 
-  // @ts-expect-error: `Go` is imported in global this by `wasm_exec.js` file.
   const go = new Go();
   const result = await WebAssembly.instantiateStreaming(
     fetch(goggleWasm),
@@ -53,4 +52,8 @@ export const loadGoggleWasm = () => {
     });
   }
   return loadPromise;
+};
+
+export const parseGoSource = (source: string): WasmParseResult | undefined => {
+  return globalThis.parse?.(source);
 };

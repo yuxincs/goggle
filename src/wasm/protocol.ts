@@ -80,3 +80,7 @@ export interface AnalysisResult {
   cfgs: CFGFunction[];
   ssa: SSAFunction[];
 }
+
+export type WasmParseResult =
+  | { body: string; error?: undefined }
+  | { body?: undefined; error: string };
