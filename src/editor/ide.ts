@@ -1,10 +1,15 @@
-import { languages, Range, type editor } from "monaco-editor";
+import { languages, Range, Uri, type editor } from "monaco-editor";
 import type {
   IDECompletionKind,
   IDEDocumentPosition,
   IDERange,
 } from "../wasm/protocol.ts";
-import { completeGo, hoverGo, updateIDEDocument } from "../wasm/client.ts";
+import {
+  completeGo,
+  defineGo,
+  hoverGo,
+  updateIDEDocument,
+} from "../wasm/client.ts";
 
 export const GO_SOURCE_URI = "file:///main.go";
 
@@ -91,6 +96,22 @@ export const registerGoIDE = () => {
           range: hover.range === undefined
             ? undefined
             : toMonacoRange(hover.range),
+        };
+      },
+    }),
+    languages.registerDefinitionProvider(selector, {
+      provideDefinition: async (model, position, token) => {
+        if (model.uri.toString() !== GO_SOURCE_URI) return null;
+
+        await synchronizeDocument(model);
+        if (token.isCancellationRequested) return null;
+
+        const definition = await defineGo(documentPosition(model, position));
+        if (definition === null || token.isCancellationRequested) return null;
+
+        return {
+          uri: Uri.parse(definition.uri),
+          range: toMonacoRange(definition.range),
         };
       },
     }),
