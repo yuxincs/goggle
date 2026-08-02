@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"syscall/js"
+
+	"github.com/yuxincs/goggle/analyzer"
 )
 
 func main() {
@@ -29,7 +31,7 @@ func main() {
 			})
 		}
 
-		result, err := parse(args[0].String())
+		result, err := analyzer.Analyze(args[0].String())
 		if err != nil {
 			return js.ValueOf(map[string]interface{}{
 				"error": err.Error(),
