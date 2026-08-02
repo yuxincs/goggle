@@ -8,6 +8,7 @@ APP_HEIGHT = 768
 TITLE_BAR_HEIGHT = 44
 FRAME_PADDING = 80
 ANALYSIS_TIMEOUT = 60_000
+COMPLETION_POSITION = ":11:9"
 
 
 def encode_screenshot(page):
@@ -26,16 +27,35 @@ def wait_for_render(page, theme):
     )
 
 
+def show_completion(page):
+    page.locator('[aria-label="Go source editor"] .monaco-editor').click()
+    page.keyboard.press("Control+G")
+
+    quick_input = page.locator(".quick-input-widget")
+    quick_input.wait_for(state="visible", timeout=ANALYSIS_TIMEOUT)
+    quick_input.locator("input").fill(COMPLETION_POSITION)
+    page.keyboard.press("Enter")
+
+    page.keyboard.press("Control+Space")
+    page.locator(
+        ".suggest-widget.visible .monaco-list-row"
+    ).first.wait_for(state="visible", timeout=ANALYSIS_TIMEOUT)
+
+
 def capture_themes(context):
     page = context.new_page()
-    page.add_init_script("localStorage.setItem('theme', 'dark')")
+    page.add_init_script(
+        "localStorage.removeItem('src'); localStorage.setItem('theme', 'dark')"
+    )
     page.goto("http://localhost:5173")
 
     wait_for_render(page, "dark")
+    show_completion(page)
     dark_screenshot = encode_screenshot(page)
 
     page.get_by_role("button", name="Switch to light mode").click()
     wait_for_render(page, "light")
+    show_completion(page)
     light_screenshot = encode_screenshot(page)
 
     page.close()
