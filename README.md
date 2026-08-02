@@ -69,8 +69,9 @@ npm install
 npm run dev
 ```
 
-The `predev` script compiles the Go analyzer in [`wasm`](./wasm) to WebAssembly
-and copies Go's `wasm_exec.js` runtime into the frontend automatically.
+The `predev` script generates the bundled standard-library type data, compiles
+the Go analyzer in [`wasm`](./wasm) to WebAssembly, and copies Go's
+`wasm_exec.js` runtime into the frontend automatically.
 
 If you change the Go code, restart the development server so the WebAssembly
 module is rebuilt.

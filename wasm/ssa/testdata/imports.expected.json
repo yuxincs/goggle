@@ -1,0 +1,72 @@
+[
+  {
+    "name": "exported",
+    "signature": "func(name string) bool",
+    "position": {
+      "offset": 38,
+      "line": 5,
+      "column": 6
+    },
+    "parameters": [
+      {
+        "name": "name",
+        "type": "string",
+        "text": "parameter name : string"
+      }
+    ],
+    "blocks": [
+      {
+        "index": 0,
+        "comment": "entry",
+        "predecessors": [],
+        "successors": [],
+        "instructions": [
+          {
+            "index": 0,
+            "opcode": "Call",
+            "text": "go/ast.IsExported(name)",
+            "position": {
+              "offset": 89,
+              "line": 6,
+              "column": 23
+            },
+            "result": {
+              "name": "t0",
+              "type": "bool",
+              "text": "go/ast.IsExported(name)"
+            },
+            "operands": [
+              {
+                "name": "IsExported",
+                "type": "func(name string) bool",
+                "text": "go/ast.IsExported"
+              },
+              {
+                "name": "name",
+                "type": "string",
+                "text": "parameter name : string"
+              }
+            ]
+          },
+          {
+            "index": 1,
+            "opcode": "Return",
+            "text": "return t0",
+            "position": {
+              "offset": 68,
+              "line": 6,
+              "column": 2
+            },
+            "operands": [
+              {
+                "name": "t0",
+                "type": "bool",
+                "text": "go/ast.IsExported(name)"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -2,13 +2,13 @@ package ssa
 
 import (
 	goast "go/ast"
-	"go/importer"
 	"go/token"
 	"go/types"
 	"reflect"
 	"strings"
 
 	"github.com/yuxincs/goggle/source"
+	"github.com/yuxincs/goggle/stdlib"
 	toolsssa "golang.org/x/tools/go/ssa"
 	"golang.org/x/tools/go/ssa/ssautil"
 )
@@ -45,9 +45,13 @@ type Function struct {
 }
 
 func Analyze(fset *token.FileSet, file *goast.File) ([]*Function, error) {
+	typesImporter, err := stdlib.NewImporter(fset)
+	if err != nil {
+		return nil, err
+	}
 	pkg := types.NewPackage("main", "")
 	ssaPkg, typesInfo, err := ssautil.BuildPackage(
-		&types.Config{Importer: importer.Default()},
+		&types.Config{Importer: typesImporter},
 		fset,
 		pkg,
 		[]*goast.File{file},

@@ -4,9 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "predev": "cd wasm && GOOS=js GOARCH=wasm go build -o ../src/assets/goggle.wasm && cp \"$(go env GOROOT)/lib/wasm/wasm_exec.js\" ../src/assets",
+    "build:wasm": "cd wasm && go generate ./... && GOOS=js GOARCH=wasm go build -o ../src/assets/goggle.wasm && cp \"$(go env GOROOT)/lib/wasm/wasm_exec.js\" ../src/assets",
+    "predev": "npm run build:wasm",
     "dev": "vite",
-    "prebuild": "cd wasm && GOOS=js GOARCH=wasm go build -o ../src/assets/goggle.wasm && cp \"$(go env GOROOT)/lib/wasm/wasm_exec.js\" ../src/assets",
+    "prebuild": "npm run build:wasm",
     "build": "tsc -b && vite build",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
