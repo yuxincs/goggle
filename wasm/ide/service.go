@@ -81,10 +81,6 @@ func (service *Service) Update(document Document) error {
 	return nil
 }
 
-func (service *Service) Definition(DocumentPosition) (*Location, error) {
-	return nil, fmt.Errorf("definition: %w", ErrNotImplemented)
-}
-
 func (service *Service) SignatureHelp(DocumentPosition) (*SignatureHelp, error) {
 	return nil, fmt.Errorf("signature help: %w", ErrNotImplemented)
 }
