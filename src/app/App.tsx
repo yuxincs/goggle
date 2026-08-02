@@ -47,20 +47,21 @@ export const App = () => {
   const [leftRowSplit, setLeftRowSplit] = useState(50);
   const [rightRowSplit, setRightRowSplit] = useState(50);
   const workspaceRef = useRef<HTMLElement>(null);
+  const analysisVersionRef = useRef(0);
 
   const [ast, setAST] = useState<ASTNode | string | null>(null);
   const [cfgs, setCFGs] = useState<CFGFunction[] | string | null>(null);
   const [ssa, setSSA] = useState<SSAFunction[] | string | null>(null);
 
-  // Start Go WebAssembly such that the parse function is available in global this.
-  // Then, load the source and position from local storage and set then.
+  // Start Go WebAssembly in its worker, then restore the source and position.
   useEffect(() => {
     let isCurrent = true;
 
     loadGoggleWasm()
-      .then(() => {
+      .then(async () => {
         if (!isCurrent) return;
-        handleSrcChange(storedSrc);
+        await handleSrcChange(storedSrc);
+        if (!isCurrent) return;
         handleSrcPosChange(storedPos);
         setIsReady(true);
       })
@@ -86,8 +87,10 @@ export const App = () => {
   }, [srcPos]);
   useEffect(() => localStorage.setItem("theme", theme), [theme]);
 
-  function handleSrcChange(code: string | undefined) {
+  async function handleSrcChange(code: string | undefined) {
+    const version = ++analysisVersionRef.current;
     const renderError = (error: string) => {
+      if (version !== analysisVersionRef.current) return;
       setAST(`ERROR: ${error}`);
       setCFGs(`ERROR: ${error}`);
       setSSA(`ERROR: ${error}`);
@@ -98,12 +101,16 @@ export const App = () => {
       return;
     }
 
-    const result = parseGoSource(code);
-    if (result === undefined) {
-      renderError("WASM: Go wasm may not have been initialized yet");
+    setSrc(code);
+
+    let result;
+    try {
+      result = await parseGoSource(code);
+    } catch (error: unknown) {
+      renderError(error instanceof Error ? error.message : String(error));
       return;
     }
-    setSrc(code);
+    if (version !== analysisVersionRef.current) return;
 
     if (result.error !== undefined) {
       renderError(result.error);
@@ -212,7 +219,7 @@ export const App = () => {
             <SourceEditor
               initialContent={src}
               position={srcPos}
-              onChange={handleSrcChange}
+              onChange={(code) => void handleSrcChange(code)}
               onCursorChange={(event) => handleSrcPosChange(event.position)}
               onReady={() => setIsSourceReady(true)}
               theme={theme}

@@ -1,59 +1,58 @@
-import "./generated/wasm_exec.js";
-import goggleWasm from "./generated/goggle.wasm?url";
 import type { WasmParseResult } from "./protocol.ts";
+import type {
+  WorkerMethod,
+  WorkerRequest,
+  WorkerRequestMap,
+  WorkerResponse,
+  WorkerResultMap,
+} from "./workerProtocol.ts";
 
-const PARSER_TIMEOUT = 30_000;
-let loadPromise: Promise<void> | undefined;
+const worker = new Worker(new URL("./worker.ts", import.meta.url), {
+  type: "module",
+});
+const pendingRequests = new Map<
+  number,
+  { resolve: (result: unknown) => void; reject: (error: Error) => void }
+>();
+let nextRequestID = 1;
 
-const isParserReady = () => {
-  return typeof globalThis.parse === "function";
-};
+worker.addEventListener("message", (event: MessageEvent<WorkerResponse>) => {
+  const response = event.data;
+  const pending = pendingRequests.get(response.id);
+  if (pending === undefined) return;
 
-const waitForParser = () => new Promise<void>((resolve, reject) => {
-  const deadline = performance.now() + PARSER_TIMEOUT;
-
-  const check = () => {
-    if (isParserReady()) {
-      resolve();
-      return;
-    }
-    if (performance.now() >= deadline) {
-      reject(new Error("Go WebAssembly parser initialization timed out"));
-      return;
-    }
-    window.setTimeout(check, 10);
-  };
-
-  check();
+  pendingRequests.delete(response.id);
+  if (response.error !== undefined) {
+    pending.reject(new Error(response.error));
+  } else {
+    pending.resolve(response.result);
+  }
 });
 
-const initializeGoggleWasm = async () => {
-  if (isParserReady()) {
-    return;
-  }
+worker.addEventListener("error", (event) => {
+  const error = new Error(event.message || "Go WebAssembly worker failed");
+  for (const pending of pendingRequests.values()) pending.reject(error);
+  pendingRequests.clear();
+});
 
-  const go = new Go();
-  const result = await WebAssembly.instantiateStreaming(
-    fetch(goggleWasm),
-    go.importObject
-  );
-  console.log("Go WebAssembly started");
-
-  // Run the instance without waiting since Go Assembly would be running forever to provide the functionality.
-  void go.run(result.instance);
-  await waitForParser();
-};
-
-export const loadGoggleWasm = () => {
-  if (loadPromise === undefined) {
-    loadPromise = initializeGoggleWasm().catch((error) => {
-      loadPromise = undefined;
-      throw error;
+const request = <Method extends WorkerMethod>(
+  method: Method,
+  params: WorkerRequestMap[Method],
+) => {
+  const id = nextRequestID++;
+  const message = { id, method, params } as WorkerRequest;
+  return new Promise<WorkerResultMap[Method]>((resolve, reject) => {
+    pendingRequests.set(id, {
+      resolve: (result) => resolve(result as WorkerResultMap[Method]),
+      reject,
     });
-  }
-  return loadPromise;
+    worker.postMessage(message);
+  });
 };
 
-export const parseGoSource = (source: string): WasmParseResult | undefined => {
-  return globalThis.parse?.(source);
+export const loadGoggleWasm = async () => {
+  await request("initialize", undefined);
 };
+
+export const parseGoSource = (source: string): Promise<WasmParseResult> =>
+  request("analyze", { source });
