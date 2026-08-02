@@ -26,7 +26,7 @@ type listedPackage struct {
 }
 
 func main() {
-	output := flag.String("output", "stdlib.bundle", "path to the generated standard library bundle")
+	output := flag.String("output", "stdlib.bundle", "output path for the generated standard library bundle")
 	flag.Parse()
 
 	packages, err := listStandardLibrary()

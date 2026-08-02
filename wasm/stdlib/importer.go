@@ -12,7 +12,7 @@ import (
 	"golang.org/x/tools/go/gcexportdata"
 )
 
-//go:generate go run ../cmd/genstdlib -output stdlib.bundle
+//go:generate go run ../cmd/stdlibbundle -output stdlib.bundle
 
 //go:embed stdlib.bundle
 var bundleData []byte

@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build:wasm": "cd wasm && go generate ./... && GOOS=js GOARCH=wasm go build -o ../src/assets/goggle.wasm && cp \"$(go env GOROOT)/lib/wasm/wasm_exec.js\" ../src/assets",
+    "build:wasm": "node scripts/build-wasm.mjs",
     "predev": "npm run build:wasm",
     "dev": "vite",
     "prebuild": "npm run build:wasm",
