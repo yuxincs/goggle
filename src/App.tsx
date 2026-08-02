@@ -1,6 +1,6 @@
 import { KeyboardEvent, PointerEvent, useEffect, useRef, useState } from "react";
 import { IPosition } from "monaco-editor";
-import { loadGoggleWasm } from "./utils/wasm.ts";
+import { loadGoggleWasm, parseGoSource } from "./wasm/client.ts";
 import { ASTViewer } from "./viewers/ast/ASTViewer.tsx";
 import { CFGViewer } from "./viewers/cfg/CFGViewer.tsx";
 import { SSAViewer } from "./viewers/ssa/SSAViewer.tsx";
@@ -11,7 +11,7 @@ import {
   ASTNode,
   CFGFunction,
   SSAFunction,
-} from "./analysis.ts";
+} from "./wasm/protocol.ts";
 
 // We store the Go source and the last cursor position in local storage such that users will not lose their input.
 const defaultCode = `// You can edit this code!
@@ -98,15 +98,13 @@ export const App = () => {
       return;
     }
 
-    // @ts-expect-error: `parse` is injected into global this by the Goggle WebAssembly module.
-    if (globalThis.parse === undefined) {
+    const result = parseGoSource(code);
+    if (result === undefined) {
       renderError("WASM: Go wasm may not have been initialized yet");
       return;
     }
     setSrc(code);
 
-    // @ts-expect-error: `parse` is injected into global this by the Goggle WebAssembly module.
-    const result = globalThis.parse(code);
     if (result.error !== undefined) {
       renderError(result.error);
       return;

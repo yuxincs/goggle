@@ -1,4 +1,4 @@
-import { SourcePosition, SSAFunction } from "../../analysis.ts";
+import { SourcePosition, SSAFunction } from "../../wasm/protocol.ts";
 import { FormattedAnalysis } from "../lineMapping.ts";
 
 const formatPosition = (position: SourcePosition) =>
