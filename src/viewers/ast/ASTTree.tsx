@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ASTNode } from "../../wasm/protocol.ts";
 
 interface ASTTreeProps {
@@ -34,9 +34,14 @@ const pathForLine = (
 
 const ASTTreeNode = (props: ASTTreeNodeProps) => {
   const children = props.node.children ?? [];
-  const [expandedOverride, setExpandedOverride] = useState<boolean | null>(null);
-  const containsSelection = props.selectedPath?.startsWith(`${props.path}.`) ?? false;
-  const isExpanded = expandedOverride ?? (props.depth < 2 || containsSelection);
+  const [expandedOverride, setExpandedOverride] = useState<{
+    expanded: boolean;
+    selectedPath: string | null;
+  } | null>(null);
+  const isExpanded = expandedOverride?.selectedPath === props.selectedPath
+    ? expandedOverride.expanded
+    : true;
+  const selected = props.selectedPath === props.path;
   const properties = Object.entries(props.node.properties ?? {}).sort(([left], [right]) =>
     left.localeCompare(right)
   );
@@ -44,7 +49,8 @@ const ASTTreeNode = (props: ASTTreeNodeProps) => {
   return (
     <div className="ast-tree__branch">
       <div
-        className={`ast-tree__row${props.selectedPath === props.path ? " ast-tree__row--selected" : ""}`}
+        className={`ast-tree__row${selected ? " ast-tree__row--selected" : ""}`}
+        data-selected={selected ? "true" : undefined}
         style={{ paddingLeft: `${8 + props.depth * 14}px` }}
       >
         <button
@@ -53,7 +59,10 @@ const ASTTreeNode = (props: ASTTreeNodeProps) => {
           aria-label={`${isExpanded ? "Collapse" : "Expand"} ${props.node.type}`}
           aria-expanded={children.length === 0 ? undefined : isExpanded}
           disabled={children.length === 0}
-          onClick={() => setExpandedOverride(!isExpanded)}
+          onClick={() => setExpandedOverride({
+            expanded: !isExpanded,
+            selectedPath: props.selectedPath,
+          })}
         >
           {children.length === 0 ? "·" : isExpanded ? "−" : "+"}
         </button>
@@ -92,13 +101,26 @@ const ASTTreeNode = (props: ASTTreeNodeProps) => {
 };
 
 export const ASTTree = (props: ASTTreeProps) => {
+  const treeRef = useRef<HTMLDivElement>(null);
   const selectedPath = useMemo(
     () => pathForLine(props.root, props.sourceLine),
     [props.root, props.sourceLine],
   );
 
+  useEffect(() => {
+    treeRef.current?.querySelector<HTMLElement>('[data-selected="true"]')?.scrollIntoView({
+      block: "nearest",
+      inline: "nearest",
+    });
+  }, [props.root, selectedPath]);
+
   return (
-    <div className="analysis-visual ast-tree" role="tree" aria-label="Abstract syntax tree">
+    <div
+      ref={treeRef}
+      className="analysis-visual ast-tree"
+      role="tree"
+      aria-label="Abstract syntax tree"
+    >
       <ASTTreeNode
         {...props}
         node={props.root}
