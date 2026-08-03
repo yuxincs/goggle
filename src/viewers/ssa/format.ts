@@ -1,5 +1,5 @@
 import { SourcePosition, SSAFunction } from "../../wasm/protocol.ts";
-import { FormattedAnalysis } from "../shared/lineMapping.ts";
+import { AnalysisPosition, FormattedAnalysis } from "../shared/lineMapping.ts";
 
 const formatPosition = (position: SourcePosition) =>
   `${position.line}:${position.column}`;
@@ -8,15 +8,15 @@ export const formatSSA = (functions: SSAFunction[]): FormattedAnalysis => {
   if (functions.length === 0) {
     return {
       content: "SSA unavailable, try adding function declarations to the source",
-      sourceLines: [],
+      sourcePositions: [],
     };
   }
 
   const lines: string[] = [];
-  const sourceLines: Array<number | null> = [];
-  const append = (text: string, sourceLine: number | null) => {
+  const sourcePositions: FormattedAnalysis["sourcePositions"] = [];
+  const append = (text: string, sourcePosition: AnalysisPosition | null) => {
     lines.push(text);
-    sourceLines.push(sourceLine);
+    sourcePositions.push(sourcePosition);
   };
 
   functions.forEach((fn, functionIndex) => {
@@ -28,7 +28,7 @@ export const formatSSA = (functions: SSAFunction[]): FormattedAnalysis => {
       : ` ${fn.signature}`;
     append(
       `func ${fn.name}${signature} [${formatPosition(fn.position)}]`,
-      fn.position.line,
+      fn.position,
     );
 
     for (const block of fn.blocks) {
@@ -41,13 +41,13 @@ export const formatSSA = (functions: SSAFunction[]): FormattedAnalysis => {
       const successors = block.successors.length === 0
         ? "none"
         : block.successors.join(", ");
-      const blockLine = block.instructions.find((instruction) =>
+      const blockPosition = block.instructions.find((instruction) =>
         instruction.position !== undefined
-      )?.position?.line ?? fn.position.line;
+      )?.position ?? fn.position;
       append("", null);
       append(
         `block ${block.index}${comment}  predecessors: ${predecessors}  successors: ${successors}`,
-        blockLine,
+        blockPosition,
       );
 
       for (const instruction of block.instructions) {
@@ -61,7 +61,7 @@ export const formatSSA = (functions: SSAFunction[]): FormattedAnalysis => {
           : `  // ${instruction.result.type}`;
         append(
           `  ${instruction.index}: ${result}${instruction.text}${resultType}`,
-          instruction.position?.line ?? blockLine,
+          instruction.position ?? blockPosition,
         );
       }
     }
@@ -69,6 +69,6 @@ export const formatSSA = (functions: SSAFunction[]): FormattedAnalysis => {
 
   return {
     content: lines.join("\n"),
-    sourceLines,
+    sourcePositions,
   };
 };

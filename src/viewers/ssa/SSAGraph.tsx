@@ -1,11 +1,17 @@
 import { useMemo, useState } from "react";
 import { SSABlock, SSAFunction } from "../../wasm/protocol.ts";
 import { GraphViewport } from "../shared/GraphViewport.tsx";
+import { AnalysisPosition } from "../shared/lineMapping.ts";
+import {
+  analysisPositionKey,
+  closestInstructionForPosition,
+  functionForPosition,
+} from "./position.ts";
 
 interface SSAGraphProps {
   functions: SSAFunction[];
-  sourceLine: number;
-  onSourceLineSelect: (line: number) => void;
+  sourcePosition: AnalysisPosition;
+  onSourcePositionSelect: (position: AnalysisPosition) => void;
 }
 
 interface PositionedBlock {
@@ -20,27 +26,6 @@ const COLUMN_GAP = 42;
 const ROW_GAP = 66;
 const CANVAS_PADDING = 28;
 const VISIBLE_INSTRUCTIONS = 4;
-
-const functionForLine = (functions: SSAFunction[], line: number) => {
-  let closestIndex = 0;
-  let closestDistance = Number.POSITIVE_INFINITY;
-  functions.forEach((fn, index) => {
-    const lines = [
-      fn.position.line,
-      ...fn.blocks.flatMap((block) =>
-        block.instructions.flatMap((instruction) =>
-          instruction.position === undefined ? [] : [instruction.position.line]
-        )
-      ),
-    ];
-    const distance = Math.min(...lines.map((candidate) => Math.abs(candidate - line)));
-    if (distance < closestDistance) {
-      closestIndex = index;
-      closestDistance = distance;
-    }
-  });
-  return closestIndex;
-};
 
 const layoutBlocks = (fn: SSAFunction) => {
   const byIndex = new Map(fn.blocks.map((block) => [block.index, block]));
@@ -127,16 +112,21 @@ const dataEdgesForValue = (fn: SSAFunction, value: string | null) => {
 
 export const SSAGraph = (props: SSAGraphProps) => {
   const [selection, setSelection] = useState(() => ({
-    index: functionForLine(props.functions, props.sourceLine),
-    sourceLine: props.sourceLine,
+    index: functionForPosition(props.functions, props.sourcePosition),
+    sourcePosition: analysisPositionKey(props.sourcePosition),
   }));
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
-  const selectedFunction = selection.sourceLine === props.sourceLine
+  const currentPositionKey = analysisPositionKey(props.sourcePosition);
+  const selectedFunction = selection.sourcePosition === currentPositionKey
     ? selection.index
-    : functionForLine(props.functions, props.sourceLine);
+    : functionForPosition(props.functions, props.sourcePosition);
   const functionIndex = Math.min(selectedFunction, Math.max(0, props.functions.length - 1));
   const fn = props.functions[functionIndex];
   const layout = useMemo(() => fn === undefined ? null : layoutBlocks(fn), [fn]);
+  const closestInstruction = useMemo(
+    () => fn === undefined ? null : closestInstructionForPosition(fn, props.sourcePosition),
+    [fn, props.sourcePosition],
+  );
 
   if (fn === undefined || layout === null) {
     return <div className="analysis-placeholder">Add a function to graph its SSA form.</div>;
@@ -163,7 +153,7 @@ export const SSAGraph = (props: SSAGraphProps) => {
             onChange={(event) => {
               setSelection({
                 index: Number(event.target.value),
-                sourceLine: props.sourceLine,
+                sourcePosition: currentPositionKey,
               });
               setSelectedValue(null);
             }}
@@ -232,12 +222,18 @@ export const SSAGraph = (props: SSAGraphProps) => {
             })}
           </svg>
           {layout.positioned.map(({ block, x, y }) => {
-            const active = block.instructions.some((instruction) =>
-              instruction.position?.line === props.sourceLine
-            );
-            const firstLine = block.instructions.find((instruction) =>
+            const active = closestInstruction?.blockIndex === block.index;
+            const activeInstruction = active ? closestInstruction?.instruction : undefined;
+            const visibleInstructions = block.instructions.slice(0, VISIBLE_INSTRUCTIONS);
+            if (
+              activeInstruction !== undefined &&
+              !visibleInstructions.some((instruction) => instruction.index === activeInstruction.index)
+            ) {
+              visibleInstructions[VISIBLE_INSTRUCTIONS - 1] = activeInstruction;
+            }
+            const firstPosition = block.instructions.find((instruction) =>
               instruction.position !== undefined
-            )?.position?.line ?? fn.position.line;
+            )?.position ?? fn.position;
             return (
               <section
                 key={block.index}
@@ -247,22 +243,24 @@ export const SSAGraph = (props: SSAGraphProps) => {
                 <button
                   type="button"
                   className="ssa-graph-card__header"
-                  onClick={() => props.onSourceLineSelect(firstLine)}
+                  onClick={() => props.onSourcePositionSelect(firstPosition)}
                 >
                   <strong>B{block.index}</strong>
                   <span>{block.comment ?? "block"}</span>
                   <span>{block.successors.length === 0 ? "exit" : `→ ${block.successors.map((successor) => `B${successor}`).join(", ")}`}</span>
                 </button>
                 <div className="ssa-graph-card__instructions">
-                  {block.instructions.slice(0, VISIBLE_INSTRUCTIONS).map((instruction) => {
+                  {visibleInstructions.map((instruction) => {
                     const definition = focusedValue !== null && instruction.result?.name === focusedValue;
                     const use = focusedValue !== null && instruction.operands.some((operand) =>
                       operand.name === focusedValue
                     );
+                    const instructionActive = closestInstruction?.blockIndex === block.index &&
+                      closestInstruction.instruction.index === instruction.index;
                     return (
                       <div
                         key={instruction.index}
-                        className={`ssa-graph-instruction${definition ? " ssa-graph-instruction--definition" : ""}${use ? " ssa-graph-instruction--use" : ""}`}
+                        className={`ssa-graph-instruction${instructionActive ? " ssa-graph-instruction--active" : ""}${definition ? " ssa-graph-instruction--definition" : ""}${use ? " ssa-graph-instruction--use" : ""}`}
                       >
                         {instruction.result === undefined
                           ? <span className="ssa-graph-instruction__empty">·</span>
@@ -280,8 +278,8 @@ export const SSAGraph = (props: SSAGraphProps) => {
                           type="button"
                           className="ssa-graph-instruction__text"
                           title={instruction.text}
-                          onClick={() => props.onSourceLineSelect(
-                            instruction.position?.line ?? fn.position.line
+                          onClick={() => props.onSourcePositionSelect(
+                            instruction.position ?? fn.position
                           )}
                         >
                           <span>{instruction.opcode}</span>

@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ASTNode } from "../../wasm/protocol.ts";
+import { AnalysisPosition } from "../shared/lineMapping.ts";
 
 interface ASTTreeProps {
   root: ASTNode;
-  sourceLine: number;
-  onSourceLineSelect: (line: number) => void;
+  sourcePosition: AnalysisPosition;
+  onSourcePositionSelect: (position: AnalysisPosition) => void;
 }
 
 interface ASTTreeNodeProps extends ASTTreeProps {
@@ -15,18 +16,22 @@ interface ASTTreeNodeProps extends ASTTreeProps {
   selectedPath: string | null;
 }
 
-const containsLine = (node: ASTNode, line: number) =>
-  node.range.start.line <= line && node.range.end.line >= line;
+const comparePosition = (left: AnalysisPosition, right: AnalysisPosition) =>
+  left.line === right.line ? left.column - right.column : left.line - right.line;
 
-const pathForLine = (
+const containsPosition = (node: ASTNode, position: AnalysisPosition) =>
+  comparePosition(node.range.start, position) <= 0 &&
+  comparePosition(position, node.range.end) <= 0;
+
+const pathForPosition = (
   node: ASTNode,
-  line: number,
+  position: AnalysisPosition,
   path = "root",
 ): string | null => {
-  if (!containsLine(node, line)) return null;
+  if (!containsPosition(node, position)) return null;
 
   for (const [childIndex, child] of (node.children ?? []).entries()) {
-    const childPath = pathForLine(child.node, line, `${path}.${childIndex}`);
+    const childPath = pathForPosition(child.node, position, `${path}.${childIndex}`);
     if (childPath !== null) return childPath;
   }
   return path;
@@ -69,7 +74,7 @@ const ASTTreeNode = (props: ASTTreeNodeProps) => {
         <button
           type="button"
           className="ast-tree__node"
-          onClick={() => props.onSourceLineSelect(props.node.range.start.line)}
+          onClick={() => props.onSourcePositionSelect(props.node.range.start)}
         >
           {props.label !== undefined && <span className="ast-tree__field">{props.label}</span>}
           <span className="ast-tree__type">{props.node.type}</span>
@@ -103,8 +108,8 @@ const ASTTreeNode = (props: ASTTreeNodeProps) => {
 export const ASTTree = (props: ASTTreeProps) => {
   const treeRef = useRef<HTMLDivElement>(null);
   const selectedPath = useMemo(
-    () => pathForLine(props.root, props.sourceLine),
-    [props.root, props.sourceLine],
+    () => pathForPosition(props.root, props.sourcePosition),
+    [props.root, props.sourcePosition],
   );
 
   useEffect(() => {

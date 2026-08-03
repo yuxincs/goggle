@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
 import { CFGBlock, CFGFunction } from "../../wasm/protocol.ts";
 import { GraphViewport } from "../shared/GraphViewport.tsx";
+import { AnalysisPosition } from "../shared/lineMapping.ts";
 
 interface CFGGraphProps {
   functions: CFGFunction[];
-  sourceLine: number;
-  onSourceLineSelect: (line: number) => void;
+  sourcePosition: AnalysisPosition;
+  onSourcePositionSelect: (position: AnalysisPosition) => void;
 }
 
 interface PositionedBlock {
@@ -20,19 +21,43 @@ const COLUMN_GAP = 34;
 const ROW_GAP = 58;
 const CANVAS_PADDING = 24;
 
-const functionForLine = (functions: CFGFunction[], line: number) => {
+const comparePosition = (left: AnalysisPosition, right: AnalysisPosition) =>
+  left.line === right.line ? left.column - right.column : left.line - right.line;
+
+const rangeContainsPosition = (
+  start: AnalysisPosition,
+  end: AnalysisPosition,
+  position: AnalysisPosition,
+) => comparePosition(start, position) <= 0 && comparePosition(position, end) <= 0;
+
+const positionKey = (position: AnalysisPosition) => `${position.line}:${position.column}`;
+
+const functionForPosition = (functions: CFGFunction[], position: AnalysisPosition) => {
   const index = functions.findIndex((fn) =>
-    fn.range.start.line <= line && fn.range.end.line >= line
+    rangeContainsPosition(fn.range.start, fn.range.end, position)
   );
   return index < 0 ? 0 : index;
 };
 
-const blockLine = (block: CFGBlock, fallback: number) =>
-  block.nodes[0]?.range.start.line ?? block.statement?.range.start.line ?? fallback;
+const blockPosition = (block: CFGBlock, fallback: AnalysisPosition) =>
+  block.nodes[0]?.range.start ?? block.statement?.range.start ?? fallback;
 
-const blockContainsLine = (block: CFGBlock, line: number) => {
-  const nodes = [block.statement, ...block.nodes].filter((node) => node !== undefined);
-  return nodes.some((node) => node.range.start.line <= line && node.range.end.line >= line);
+const blockForPosition = (fn: CFGFunction, position: AnalysisPosition) => {
+  let closest: { index: number; width: number; live: boolean } | null = null;
+  for (const block of fn.blocks) {
+    for (const node of [...block.nodes, block.statement].filter((item) => item !== undefined)) {
+      if (!rangeContainsPosition(node.range.start, node.range.end, position)) continue;
+      const width = node.range.end.offset - node.range.start.offset;
+      if (
+        closest === null ||
+        (block.live && !closest.live) ||
+        (block.live === closest.live && width < closest.width)
+      ) {
+        closest = { index: block.index, width, live: block.live };
+      }
+    }
+  }
+  return closest?.index;
 };
 
 const layoutBlocks = (fn: CFGFunction) => {
@@ -89,12 +114,13 @@ const layoutBlocks = (fn: CFGFunction) => {
 
 export const CFGGraph = (props: CFGGraphProps) => {
   const [selection, setSelection] = useState(() => ({
-    index: functionForLine(props.functions, props.sourceLine),
-    sourceLine: props.sourceLine,
+    index: functionForPosition(props.functions, props.sourcePosition),
+    sourcePosition: positionKey(props.sourcePosition),
   }));
-  const selectedFunction = selection.sourceLine === props.sourceLine
+  const currentPositionKey = positionKey(props.sourcePosition);
+  const selectedFunction = selection.sourcePosition === currentPositionKey
     ? selection.index
-    : functionForLine(props.functions, props.sourceLine);
+    : functionForPosition(props.functions, props.sourcePosition);
   const functionIndex = Math.min(selectedFunction, Math.max(0, props.functions.length - 1));
   const fn = props.functions[functionIndex];
   const layout = useMemo(() => fn === undefined ? null : layoutBlocks(fn), [fn]);
@@ -103,6 +129,7 @@ export const CFGGraph = (props: CFGGraphProps) => {
   if (fn === undefined || layout === null) {
     return <div className="analysis-placeholder">Add a function to see its control flow.</div>;
   }
+  const activeBlock = blockForPosition(fn, props.sourcePosition);
 
   return (
     <div className="analysis-visual analysis-visual--with-toolbar">
@@ -113,7 +140,7 @@ export const CFGGraph = (props: CFGGraphProps) => {
             value={functionIndex}
             onChange={(event) => setSelection({
               index: Number(event.target.value),
-              sourceLine: props.sourceLine,
+              sourcePosition: currentPositionKey,
             })}
           >
             {props.functions.map((candidate, index) => (
@@ -159,14 +186,14 @@ export const CFGGraph = (props: CFGGraphProps) => {
           {layout.positioned.map(({ block, x, y }) => {
             const source = block.nodes.map((node) => node.source).join("; ") ||
               block.statement?.source || "Empty block";
-            const active = blockContainsLine(block, props.sourceLine);
+            const active = block.index === activeBlock;
             return (
               <button
                 type="button"
                 key={block.index}
                 className={`cfg-card${block.live ? "" : " cfg-card--unreachable"}${active ? " cfg-card--active" : ""}`}
                 style={{ left: x, top: y, width: CARD_WIDTH, height: CARD_HEIGHT }}
-                onClick={() => props.onSourceLineSelect(blockLine(block, fn.range.start.line))}
+                onClick={() => props.onSourcePositionSelect(blockPosition(block, fn.range.start))}
               >
                 <span className="cfg-card__header">
                   <strong>B{block.index}</strong>

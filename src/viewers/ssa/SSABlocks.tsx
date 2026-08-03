@@ -1,32 +1,17 @@
-import { KeyboardEvent, useMemo, useState } from "react";
+import { KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import { SSAFunction, SSAInstruction, SSAValue } from "../../wasm/protocol.ts";
+import { AnalysisPosition } from "../shared/lineMapping.ts";
+import {
+  analysisPositionKey,
+  closestInstructionForPosition,
+  functionForPosition,
+} from "./position.ts";
 
 interface SSABlocksProps {
   functions: SSAFunction[];
-  sourceLine: number;
-  onSourceLineSelect: (line: number) => void;
+  sourcePosition: AnalysisPosition;
+  onSourcePositionSelect: (position: AnalysisPosition) => void;
 }
-
-const functionForLine = (functions: SSAFunction[], line: number) => {
-  let closestIndex = 0;
-  let closestDistance = Number.POSITIVE_INFINITY;
-  functions.forEach((fn, index) => {
-    const positions = [
-      fn.position.line,
-      ...fn.blocks.flatMap((block) =>
-        block.instructions.flatMap((instruction) =>
-          instruction.position === undefined ? [] : [instruction.position.line]
-        )
-      ),
-    ];
-    const distance = Math.min(...positions.map((position) => Math.abs(position - line)));
-    if (distance < closestDistance) {
-      closestIndex = index;
-      closestDistance = distance;
-    }
-  });
-  return closestIndex;
-};
 
 const ValueChip = (props: {
   value: SSAValue;
@@ -52,16 +37,25 @@ const instructionHasValue = (instruction: SSAInstruction, value: string) =>
   instruction.operands.some((operand) => operand.name === value);
 
 export const SSABlocks = (props: SSABlocksProps) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [selection, setSelection] = useState(() => ({
-    index: functionForLine(props.functions, props.sourceLine),
-    sourceLine: props.sourceLine,
+    index: functionForPosition(props.functions, props.sourcePosition),
+    sourcePosition: analysisPositionKey(props.sourcePosition),
   }));
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
-  const selectedFunction = selection.sourceLine === props.sourceLine
+  const currentPositionKey = analysisPositionKey(props.sourcePosition);
+  const selectedFunction = selection.sourcePosition === currentPositionKey
     ? selection.index
-    : functionForLine(props.functions, props.sourceLine);
+    : functionForPosition(props.functions, props.sourcePosition);
   const functionIndex = Math.min(selectedFunction, Math.max(0, props.functions.length - 1));
   const fn = props.functions[functionIndex];
+  const closestInstruction = useMemo(
+    () => fn === undefined ? null : closestInstructionForPosition(fn, props.sourcePosition),
+    [fn, props.sourcePosition],
+  );
+  const closestInstructionKey = closestInstruction === null
+    ? null
+    : `${closestInstruction.blockIndex}:${closestInstruction.instruction.index}`;
   const availableValues = useMemo(() => new Set([
     ...(fn?.parameters.map((parameter) => parameter.name) ?? []),
     ...(fn?.blocks.flatMap((block) =>
@@ -85,12 +79,18 @@ export const SSABlocks = (props: SSABlocksProps) => {
     };
   }, [fn, focusedValue]);
 
+  useEffect(() => {
+    scrollRef.current
+      ?.querySelector<HTMLElement>('[data-source-selected="true"]')
+      ?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, [closestInstructionKey]);
+
   if (fn === undefined) {
     return <div className="analysis-placeholder">Add a function to inspect its SSA form.</div>;
   }
 
   const selectInstruction = (instruction: SSAInstruction) => {
-    props.onSourceLineSelect(instruction.position?.line ?? fn.position.line);
+    props.onSourcePositionSelect(instruction.position ?? fn.position);
   };
   const selectInstructionWithKeyboard = (
     event: KeyboardEvent<HTMLDivElement>,
@@ -111,7 +111,7 @@ export const SSABlocks = (props: SSABlocksProps) => {
             onChange={(event) => {
               setSelection({
                 index: Number(event.target.value),
-                sourceLine: props.sourceLine,
+                sourcePosition: currentPositionKey,
               });
               setSelectedValue(null);
             }}
@@ -125,7 +125,7 @@ export const SSABlocks = (props: SSABlocksProps) => {
         </label>
         <span className="analysis-toolbar__meta">{fn.blocks.length} blocks</span>
       </div>
-      <div className="ssa-scroll">
+      <div ref={scrollRef} className="ssa-scroll">
         <div className="ssa-signature">
           <span className="ssa-signature__name">{fn.name}</span>
           <code>{fn.signature}</code>
@@ -151,9 +151,7 @@ export const SSABlocks = (props: SSABlocksProps) => {
 
         <div className="ssa-blocks">
           {fn.blocks.map((block) => {
-            const active = block.instructions.some((instruction) =>
-              instruction.position?.line === props.sourceLine
-            );
+            const active = closestInstruction?.blockIndex === block.index;
             return (
               <section
                 key={block.index}
@@ -171,10 +169,13 @@ export const SSABlocks = (props: SSABlocksProps) => {
                       operand.name === focusedValue
                     );
                     const dimmed = focusedValue !== null && !instructionHasValue(instruction, focusedValue);
+                    const instructionActive = closestInstruction?.blockIndex === block.index &&
+                      closestInstruction.instruction.index === instruction.index;
                     return (
                       <div
                         key={instruction.index}
-                        className={`ssa-instruction${definition ? " ssa-instruction--definition" : ""}${use ? " ssa-instruction--use" : ""}${dimmed ? " ssa-instruction--dimmed" : ""}`}
+                        className={`ssa-instruction${instructionActive ? " ssa-instruction--active" : ""}${definition ? " ssa-instruction--definition" : ""}${use ? " ssa-instruction--use" : ""}${dimmed ? " ssa-instruction--dimmed" : ""}`}
+                        data-source-selected={instructionActive ? "true" : undefined}
                         role="button"
                         tabIndex={0}
                         onClick={() => selectInstruction(instruction)}

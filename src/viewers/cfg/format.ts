@@ -1,5 +1,5 @@
 import { CFGFunction, SourceRange } from "../../wasm/protocol.ts";
-import { FormattedAnalysis } from "../shared/lineMapping.ts";
+import { AnalysisPosition, FormattedAnalysis } from "../shared/lineMapping.ts";
 
 const formatPosition = (line: number, column: number) => `${line}:${column}`;
 
@@ -10,16 +10,21 @@ export const formatCFGs = (functions: CFGFunction[]): FormattedAnalysis => {
   if (functions.length === 0) {
     return {
       content: "CFG unavailable, try adding function declarations to the source",
-      sourceLines: [],
+      sourcePositions: [],
     };
   }
 
   const lines: string[] = [];
-  const sourceLines: Array<number | null> = [];
-  const append = (text: string, sourceLine: number | null) => {
+  const sourcePositions: FormattedAnalysis["sourcePositions"] = [];
+  const append = (text: string, sourcePosition: AnalysisPosition | null) => {
     for (const [index, part] of text.split("\n").entries()) {
       lines.push(index === 0 ? part : `  ${part}`);
-      sourceLines.push(sourceLine === null ? null : sourceLine + index);
+      sourcePositions.push(sourcePosition === null
+        ? null
+        : {
+          line: sourcePosition.line + index,
+          column: index === 0 ? sourcePosition.column : 1,
+        });
     }
   };
 
@@ -29,38 +34,38 @@ export const formatCFGs = (functions: CFGFunction[]): FormattedAnalysis => {
     }
     append(
       `func ${fn.name} [${formatRange(fn.range)}]${fn.noReturn ? " (no return)" : ""}`,
-      fn.range.start.line,
+      fn.range.start,
     );
     for (const block of fn.blocks) {
-      const blockLine = block.statement?.range.start.line ??
-        block.nodes[0]?.range.start.line ??
-        fn.range.start.line;
+      const blockPosition = block.statement?.range.start ??
+        block.nodes[0]?.range.start ??
+        fn.range.start;
       append("", null);
       append(
         `block ${block.index} (${block.kind})${block.live ? "" : " [unreachable]"}`,
-        blockLine,
+        blockPosition,
       );
       if (block.statement !== undefined) {
         append(
           `  control: ${block.statement.type} [${formatRange(block.statement.range)}]`,
-          block.statement.range.start.line,
+          block.statement.range.start,
         );
       }
       for (const node of block.nodes) {
         append(
           `  ${node.type} [${formatRange(node.range)}] ${node.source}`,
-          node.range.start.line,
+          node.range.start,
         );
       }
       append(
         `  successors: ${block.successors.length === 0 ? "none" : block.successors.join(", ")}`,
-        blockLine,
+        blockPosition,
       );
     }
   });
 
   return {
     content: lines.join("\n"),
-    sourceLines,
+    sourcePositions,
   };
 };
