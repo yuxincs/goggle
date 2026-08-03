@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { CFGBlock, CFGFunction } from "../../wasm/protocol.ts";
+import { GraphViewport } from "../shared/GraphViewport.tsx";
 
 interface CFGGraphProps {
   functions: CFGFunction[];
@@ -126,7 +127,12 @@ export const CFGGraph = (props: CFGGraphProps) => {
           {fn.blocks.filter((block) => block.live).length} live · {fn.blocks.length} blocks
         </span>
       </div>
-      <div className="cfg-viewport">
+      <GraphViewport
+        key={`${fn.name}-${fn.range.start.offset}`}
+        contentWidth={layout.width}
+        contentHeight={layout.height}
+        label={`Control flow graph for ${fn.name}`}
+      >
         <div className="cfg-canvas" style={{ width: layout.width, height: layout.height }}>
           <svg className="cfg-edges" width={layout.width} height={layout.height} aria-hidden="true">
             <defs>
@@ -176,7 +182,7 @@ export const CFGGraph = (props: CFGGraphProps) => {
             );
           })}
         </div>
-      </div>
+      </GraphViewport>
     </div>
   );
 };

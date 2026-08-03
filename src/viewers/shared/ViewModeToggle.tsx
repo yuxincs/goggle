@@ -1,14 +1,22 @@
-export type AnalysisViewMode = "visual" | "text";
+export type AnalysisViewMode = "tree" | "blocks" | "graph" | "text";
 
 interface ViewModeToggleProps {
   label: string;
   mode: AnalysisViewMode;
+  modes: readonly AnalysisViewMode[];
   onChange: (mode: AnalysisViewMode) => void;
 }
 
+const modeLabels: Record<AnalysisViewMode, string> = {
+  tree: "Tree",
+  blocks: "Blocks",
+  graph: "Graph",
+  text: "Text",
+};
+
 export const ViewModeToggle = (props: ViewModeToggleProps) => (
   <div className="view-mode-toggle" role="group" aria-label={`${props.label} view mode`}>
-    {(["visual", "text"] as const).map((mode) => (
+    {props.modes.map((mode) => (
       <button
         key={mode}
         type="button"
@@ -16,7 +24,7 @@ export const ViewModeToggle = (props: ViewModeToggleProps) => (
         aria-pressed={props.mode === mode}
         onClick={() => props.onChange(mode)}
       >
-        {mode === "visual" ? "Visual" : "Text"}
+        {modeLabels[mode]}
       </button>
     ))}
   </div>

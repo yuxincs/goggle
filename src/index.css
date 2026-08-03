@@ -605,10 +605,81 @@ a {
   font-size: 9px;
 }
 
-.cfg-viewport {
-  overflow: auto;
+.graph-viewport {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
   background-image: radial-gradient(var(--viz-border) 0.7px, transparent 0.7px);
   background-size: 16px 16px;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.graph-viewport--dragging {
+  cursor: grabbing;
+}
+
+.graph-viewport__stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+.graph-viewport__controls {
+  position: absolute;
+  z-index: 10;
+  right: 9px;
+  bottom: 9px;
+  display: flex;
+  height: 27px;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid var(--viz-border-strong);
+  border-radius: 6px;
+  color: var(--viz-muted);
+  background: color-mix(in srgb, var(--viz-surface-raised) 92%, transparent);
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.16);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9px;
+  backdrop-filter: blur(8px);
+}
+
+.graph-viewport__controls button {
+  width: 27px;
+  height: 27px;
+  padding: 0;
+  border: 0;
+  border-right: 1px solid var(--viz-border);
+  color: var(--viz-text);
+  background: transparent;
+  cursor: pointer;
+}
+
+.graph-viewport__controls button:hover {
+  background: var(--viz-surface-hover);
+}
+
+.graph-viewport__controls button:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid var(--viz-accent);
+  outline-offset: -2px;
+}
+
+.graph-viewport__controls span {
+  width: 42px;
+  text-align: center;
+}
+
+.graph-viewport__controls .graph-viewport__fit {
+  width: 34px;
+  border-right: 0;
+  border-left: 1px solid var(--viz-border);
+  font-size: 9px;
 }
 
 .cfg-canvas {
@@ -699,6 +770,195 @@ a {
   justify-content: flex-end;
   border-top: 1px solid var(--viz-border);
   color: var(--viz-secondary);
+}
+
+.ssa-graph-focus {
+  max-width: 180px;
+  height: 26px;
+  padding: 0 7px;
+  overflow: hidden;
+  margin-left: auto;
+  border: 1px solid var(--viz-accent-border);
+  border-radius: 5px;
+  color: var(--viz-accent);
+  background: var(--viz-accent-soft);
+  cursor: pointer;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ssa-graph-canvas {
+  position: relative;
+}
+
+.ssa-graph-edges {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.ssa-graph-edges path {
+  fill: none;
+}
+
+.ssa-graph-edge--control {
+  stroke: var(--viz-edge);
+  stroke-width: 1.5;
+}
+
+.ssa-graph-edge--data {
+  stroke: var(--viz-accent);
+  stroke-dasharray: 5 4;
+  stroke-width: 2.2;
+}
+
+#ssa-control-arrow path {
+  fill: var(--viz-edge);
+}
+
+#ssa-data-arrow path {
+  fill: var(--viz-accent);
+}
+
+.ssa-graph-card {
+  position: absolute;
+  overflow: hidden;
+  border: 1px solid var(--viz-border-strong);
+  border-radius: 7px;
+  color: var(--viz-text);
+  background: var(--viz-surface-raised);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.12);
+}
+
+.ssa-graph-card--active {
+  border-color: var(--viz-accent);
+  box-shadow: 0 0 0 2px var(--viz-accent-soft), 0 5px 14px rgba(0, 0, 0, 0.12);
+}
+
+.ssa-graph-card__header {
+  display: flex;
+  width: 100%;
+  height: 28px;
+  align-items: center;
+  gap: 7px;
+  padding: 0 8px;
+  border: 0;
+  border-bottom: 1px solid var(--viz-border);
+  color: var(--viz-muted);
+  background: var(--viz-surface-hover);
+  cursor: pointer;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9px;
+  text-align: left;
+}
+
+.ssa-graph-card__header strong {
+  color: var(--viz-secondary);
+  font-size: 10px;
+}
+
+.ssa-graph-card__header span:last-child {
+  overflow: hidden;
+  margin-left: auto;
+  color: var(--viz-faint);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ssa-graph-card__instructions {
+  display: grid;
+  padding: 5px 0;
+}
+
+.ssa-graph-instruction {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  min-width: 0;
+  min-height: 20px;
+  align-items: center;
+  padding: 0 6px;
+  border-left: 2px solid transparent;
+}
+
+.ssa-graph-instruction--definition {
+  border-left-color: var(--viz-accent);
+  background: var(--viz-accent-soft);
+}
+
+.ssa-graph-instruction--use {
+  border-left-color: var(--viz-secondary);
+  background: var(--viz-secondary-soft);
+}
+
+.ssa-graph-instruction__empty,
+.ssa-graph-instruction__value {
+  overflow: hidden;
+  color: var(--viz-faint);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9px;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ssa-graph-instruction__value {
+  padding: 2px 3px;
+  border: 0;
+  border-radius: 3px;
+  color: var(--viz-accent);
+  background: transparent;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.ssa-graph-instruction__value:hover {
+  background: var(--viz-accent-soft);
+}
+
+.ssa-graph-instruction__text {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 3px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 3px;
+  color: var(--viz-text);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.ssa-graph-instruction__text:hover {
+  background: var(--viz-surface-hover);
+}
+
+.ssa-graph-instruction__text span {
+  flex: 0 0 46px;
+  overflow: hidden;
+  color: var(--viz-warning);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 8px;
+  text-overflow: ellipsis;
+}
+
+.ssa-graph-instruction__text code {
+  overflow: hidden;
+  color: var(--viz-text);
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ssa-graph-card__more {
+  padding: 2px 9px;
+  color: var(--viz-muted);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 8px;
 }
 
 .ssa-scroll {

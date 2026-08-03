@@ -20,7 +20,7 @@ interface ASTViewerProps {
 }
 
 export const ASTViewer: React.FC<ASTViewerProps> = (props: ASTViewerProps) => {
-  const [mode, setMode] = useState<AnalysisViewMode>("visual");
+  const [mode, setMode] = useState<AnalysisViewMode>("tree");
   const formatted = useMemo<FormattedAnalysis>(() => {
     if (props.ast === null) {
       return { content: "AST unavailable", sourceLines: [] };
@@ -39,9 +39,9 @@ export const ASTViewer: React.FC<ASTViewerProps> = (props: ASTViewerProps) => {
     <>
       <ViewerTitle sx={{ height: VIEWER_TITLE_HEIGHT }}>
         <span>AST</span>
-        <ViewModeToggle label="AST" mode={mode} onChange={setMode} />
+        <ViewModeToggle label="AST" mode={mode} modes={["tree", "text"]} onChange={setMode} />
       </ViewerTitle>
-      {mode === "visual"
+      {mode === "tree"
         ? props.ast === null
           ? <div className="analysis-placeholder">AST unavailable</div>
           : typeof props.ast === "string"

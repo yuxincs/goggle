@@ -20,7 +20,7 @@ interface CFGViewerProps {
 }
 
 export const CFGViewer: React.FC<CFGViewerProps> = (props: CFGViewerProps) => {
-  const [mode, setMode] = useState<AnalysisViewMode>("visual");
+  const [mode, setMode] = useState<AnalysisViewMode>("graph");
   const formatted = useMemo<FormattedAnalysis>(() => {
     if (props.cfgs === null) {
       return {
@@ -42,9 +42,9 @@ export const CFGViewer: React.FC<CFGViewerProps> = (props: CFGViewerProps) => {
     <>
       <ViewerTitle sx={{ height: VIEWER_TITLE_HEIGHT }}>
         <span>CFG</span>
-        <ViewModeToggle label="CFG" mode={mode} onChange={setMode} />
+        <ViewModeToggle label="CFG" mode={mode} modes={["graph", "text"]} onChange={setMode} />
       </ViewerTitle>
-      {mode === "visual"
+      {mode === "graph"
         ? props.cfgs === null
           ? <div className="analysis-placeholder">CFG unavailable</div>
           : typeof props.cfgs === "string"

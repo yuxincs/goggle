@@ -5,6 +5,7 @@ import { VIEWER_TITLE_HEIGHT } from "../../constants.ts";
 import { SSAFunction } from "../../wasm/protocol.ts";
 import { formatSSA } from "./format.ts";
 import { SSABlocks } from "./SSABlocks.tsx";
+import { SSAGraph } from "./SSAGraph.tsx";
 import { AnalysisViewMode, ViewModeToggle } from "../shared/ViewModeToggle.tsx";
 import {
   displayLineForSourceLine,
@@ -20,7 +21,7 @@ interface SSAViewerProps {
 }
 
 export const SSAViewer: React.FC<SSAViewerProps> = (props: SSAViewerProps) => {
-  const [mode, setMode] = useState<AnalysisViewMode>("visual");
+  const [mode, setMode] = useState<AnalysisViewMode>("blocks");
   const formatted = useMemo<FormattedAnalysis>(() => {
     if (props.ssa === null) {
       return {
@@ -42,9 +43,14 @@ export const SSAViewer: React.FC<SSAViewerProps> = (props: SSAViewerProps) => {
     <>
       <ViewerTitle sx={{ height: VIEWER_TITLE_HEIGHT }}>
         <span>SSA</span>
-        <ViewModeToggle label="SSA" mode={mode} onChange={setMode} />
+        <ViewModeToggle
+          label="SSA"
+          mode={mode}
+          modes={["blocks", "graph", "text"]}
+          onChange={setMode}
+        />
       </ViewerTitle>
-      {mode === "visual"
+      {mode === "blocks"
         ? props.ssa === null
           ? <div className="analysis-placeholder">SSA unavailable</div>
           : typeof props.ssa === "string"
@@ -56,6 +62,18 @@ export const SSAViewer: React.FC<SSAViewerProps> = (props: SSAViewerProps) => {
                 onSourceLineSelect={props.onSourceLineSelect}
               />
             )
+        : mode === "graph"
+          ? props.ssa === null
+            ? <div className="analysis-placeholder">SSA unavailable</div>
+            : typeof props.ssa === "string"
+              ? <div className="analysis-placeholder analysis-placeholder--error">{props.ssa}</div>
+              : (
+                <SSAGraph
+                  functions={props.ssa}
+                  sourceLine={props.sourceLine}
+                  onSourceLineSelect={props.onSourceLineSelect}
+                />
+              )
         : (
           <CodeViewer
             content={formatted.content}
