@@ -7,15 +7,16 @@ import { formatAST } from "./format.ts";
 import { ASTTree } from "./ASTTree.tsx";
 import { AnalysisViewMode, ViewModeToggle } from "../shared/ViewModeToggle.tsx";
 import {
-  displayLineForSourceLine,
+  AnalysisPosition,
+  displayLineForSourcePosition,
   FormattedAnalysis,
-  sourceLineForDisplayLine,
+  sourcePositionForDisplayLine,
 } from "../shared/lineMapping.ts";
 
 interface ASTViewerProps {
   ast: ASTNode | string | null;
-  sourceLine: number;
-  onSourceLineSelect: (line: number) => void;
+  sourcePosition: AnalysisPosition;
+  onSourcePositionSelect: (position: AnalysisPosition) => void;
   theme: "light" | "dark";
 }
 
@@ -23,16 +24,16 @@ export const ASTViewer: React.FC<ASTViewerProps> = (props: ASTViewerProps) => {
   const [mode, setMode] = useState<AnalysisViewMode>("tree");
   const formatted = useMemo<FormattedAnalysis>(() => {
     if (props.ast === null) {
-      return { content: "AST unavailable", sourceLines: [] };
+      return { content: "AST unavailable", sourcePositions: [] };
     }
     if (typeof props.ast === "string") {
-      return { content: props.ast, sourceLines: [] };
+      return { content: props.ast, sourcePositions: [] };
     }
     return formatAST(props.ast);
   }, [props.ast]);
-  const displayLine = displayLineForSourceLine(
-    formatted.sourceLines,
-    props.sourceLine,
+  const displayLine = displayLineForSourcePosition(
+    formatted.sourcePositions,
+    props.sourcePosition,
   );
 
   return (
@@ -49,8 +50,8 @@ export const ASTViewer: React.FC<ASTViewerProps> = (props: ASTViewerProps) => {
             : (
               <ASTTree
                 root={props.ast}
-                sourceLine={props.sourceLine}
-                onSourceLineSelect={props.onSourceLineSelect}
+                sourcePosition={props.sourcePosition}
+                onSourcePositionSelect={props.onSourcePositionSelect}
               />
             )
         : (
@@ -58,12 +59,12 @@ export const ASTViewer: React.FC<ASTViewerProps> = (props: ASTViewerProps) => {
             content={formatted.content}
             line={displayLine}
             onCursorChange={(event) => {
-              const sourceLine = sourceLineForDisplayLine(
-                formatted.sourceLines,
+              const sourcePosition = sourcePositionForDisplayLine(
+                formatted.sourcePositions,
                 event.position.lineNumber,
               );
-              if (sourceLine !== undefined) {
-                props.onSourceLineSelect(sourceLine);
+              if (sourcePosition !== undefined) {
+                props.onSourcePositionSelect(sourcePosition);
               }
             }}
             readOnly={true}

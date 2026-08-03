@@ -8,15 +8,16 @@ import { SSABlocks } from "./SSABlocks.tsx";
 import { SSAGraph } from "./SSAGraph.tsx";
 import { AnalysisViewMode, ViewModeToggle } from "../shared/ViewModeToggle.tsx";
 import {
-  displayLineForSourceLine,
+  AnalysisPosition,
+  displayLineForSourcePosition,
   FormattedAnalysis,
-  sourceLineForDisplayLine,
+  sourcePositionForDisplayLine,
 } from "../shared/lineMapping.ts";
 
 interface SSAViewerProps {
   ssa: SSAFunction[] | string | null;
-  sourceLine: number;
-  onSourceLineSelect: (line: number) => void;
+  sourcePosition: AnalysisPosition;
+  onSourcePositionSelect: (position: AnalysisPosition) => void;
   theme: "light" | "dark";
 }
 
@@ -26,17 +27,17 @@ export const SSAViewer: React.FC<SSAViewerProps> = (props: SSAViewerProps) => {
     if (props.ssa === null) {
       return {
         content: "SSA unavailable, try adding function declarations to the source",
-        sourceLines: [],
+        sourcePositions: [],
       };
     }
     if (typeof props.ssa === "string") {
-      return { content: props.ssa, sourceLines: [] };
+      return { content: props.ssa, sourcePositions: [] };
     }
     return formatSSA(props.ssa);
   }, [props.ssa]);
-  const displayLine = displayLineForSourceLine(
-    formatted.sourceLines,
-    props.sourceLine,
+  const displayLine = displayLineForSourcePosition(
+    formatted.sourcePositions,
+    props.sourcePosition,
   );
 
   return (
@@ -58,8 +59,8 @@ export const SSAViewer: React.FC<SSAViewerProps> = (props: SSAViewerProps) => {
             : (
               <SSABlocks
                 functions={props.ssa}
-                sourceLine={props.sourceLine}
-                onSourceLineSelect={props.onSourceLineSelect}
+                sourcePosition={props.sourcePosition}
+                onSourcePositionSelect={props.onSourcePositionSelect}
               />
             )
         : mode === "graph"
@@ -70,8 +71,8 @@ export const SSAViewer: React.FC<SSAViewerProps> = (props: SSAViewerProps) => {
               : (
                 <SSAGraph
                   functions={props.ssa}
-                  sourceLine={props.sourceLine}
-                  onSourceLineSelect={props.onSourceLineSelect}
+                  sourcePosition={props.sourcePosition}
+                  onSourcePositionSelect={props.onSourcePositionSelect}
                 />
               )
         : (
@@ -79,12 +80,12 @@ export const SSAViewer: React.FC<SSAViewerProps> = (props: SSAViewerProps) => {
             content={formatted.content}
             line={displayLine}
             onCursorChange={(event) => {
-              const sourceLine = sourceLineForDisplayLine(
-                formatted.sourceLines,
+              const sourcePosition = sourcePositionForDisplayLine(
+                formatted.sourcePositions,
                 event.position.lineNumber,
               );
-              if (sourceLine !== undefined) {
-                props.onSourceLineSelect(sourceLine);
+              if (sourcePosition !== undefined) {
+                props.onSourcePositionSelect(sourcePosition);
               }
             }}
             readOnly={true}

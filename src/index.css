@@ -888,6 +888,10 @@ a {
   background: var(--viz-accent-soft);
 }
 
+.ssa-graph-instruction--active {
+  box-shadow: inset 0 0 0 1px var(--viz-accent-border);
+}
+
 .ssa-graph-instruction--use {
   border-left-color: var(--viz-secondary);
   background: var(--viz-secondary-soft);
@@ -1126,6 +1130,10 @@ a {
 
 .ssa-instruction:hover {
   background: var(--viz-surface-hover);
+}
+
+.ssa-instruction--active {
+  box-shadow: inset 0 0 0 1px var(--viz-accent-border);
 }
 
 .ssa-instruction--definition {

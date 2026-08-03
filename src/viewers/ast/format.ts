@@ -8,7 +8,7 @@ const formatRange = (range: SourceRange) =>
 
 export const formatAST = (root: ASTNode): FormattedAnalysis => {
   const lines: string[] = [];
-  const sourceLines: number[] = [];
+  const sourcePositions: FormattedAnalysis["sourcePositions"] = [];
 
   const visit = (node: ASTNode, depth: number, label?: string) => {
     const indentation = "  ".repeat(depth);
@@ -20,7 +20,7 @@ export const formatAST = (root: ASTNode): FormattedAnalysis => {
     lines.push(
       `${indentation}${prefix}${node.type} [${formatRange(node.range)}]${properties === "" ? "" : ` ${properties}`}`,
     );
-    sourceLines.push(node.range.start.line);
+    sourcePositions.push(node.range.start);
 
     for (const child of node.children ?? []) {
       const childLabel = child.index === undefined
@@ -33,6 +33,6 @@ export const formatAST = (root: ASTNode): FormattedAnalysis => {
   visit(root, 0);
   return {
     content: lines.join("\n"),
-    sourceLines,
+    sourcePositions,
   };
 };

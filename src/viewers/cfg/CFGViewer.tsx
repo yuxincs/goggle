@@ -7,15 +7,16 @@ import { formatCFGs } from "./format.ts";
 import { CFGGraph } from "./CFGGraph.tsx";
 import { AnalysisViewMode, ViewModeToggle } from "../shared/ViewModeToggle.tsx";
 import {
-  displayLineForSourceLine,
+  AnalysisPosition,
+  displayLineForSourcePosition,
   FormattedAnalysis,
-  sourceLineForDisplayLine,
+  sourcePositionForDisplayLine,
 } from "../shared/lineMapping.ts";
 
 interface CFGViewerProps {
   cfgs: CFGFunction[] | string | null;
-  sourceLine: number;
-  onSourceLineSelect: (line: number) => void;
+  sourcePosition: AnalysisPosition;
+  onSourcePositionSelect: (position: AnalysisPosition) => void;
   theme: "light" | "dark";
 }
 
@@ -25,17 +26,17 @@ export const CFGViewer: React.FC<CFGViewerProps> = (props: CFGViewerProps) => {
     if (props.cfgs === null) {
       return {
         content: "CFG unavailable, try adding function declarations to the source",
-        sourceLines: [],
+        sourcePositions: [],
       };
     }
     if (typeof props.cfgs === "string") {
-      return { content: props.cfgs, sourceLines: [] };
+      return { content: props.cfgs, sourcePositions: [] };
     }
     return formatCFGs(props.cfgs);
   }, [props.cfgs]);
-  const displayLine = displayLineForSourceLine(
-    formatted.sourceLines,
-    props.sourceLine,
+  const displayLine = displayLineForSourcePosition(
+    formatted.sourcePositions,
+    props.sourcePosition,
   );
 
   return (
@@ -52,8 +53,8 @@ export const CFGViewer: React.FC<CFGViewerProps> = (props: CFGViewerProps) => {
             : (
               <CFGGraph
                 functions={props.cfgs}
-                sourceLine={props.sourceLine}
-                onSourceLineSelect={props.onSourceLineSelect}
+                sourcePosition={props.sourcePosition}
+                onSourcePositionSelect={props.onSourcePositionSelect}
               />
             )
         : (
@@ -61,12 +62,12 @@ export const CFGViewer: React.FC<CFGViewerProps> = (props: CFGViewerProps) => {
             content={formatted.content}
             line={displayLine}
             onCursorChange={(event) => {
-              const sourceLine = sourceLineForDisplayLine(
-                formatted.sourceLines,
+              const sourcePosition = sourcePositionForDisplayLine(
+                formatted.sourcePositions,
                 event.position.lineNumber,
               );
-              if (sourceLine !== undefined) {
-                props.onSourceLineSelect(sourceLine);
+              if (sourcePosition !== undefined) {
+                props.onSourcePositionSelect(sourcePosition);
               }
             }}
             readOnly={true}

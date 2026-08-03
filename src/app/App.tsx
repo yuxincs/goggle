@@ -1,4 +1,4 @@
-import { KeyboardEvent, PointerEvent, useEffect, useRef, useState } from "react";
+import { KeyboardEvent, PointerEvent, useEffect, useMemo, useRef, useState } from "react";
 import { IPosition } from "monaco-editor";
 import { loadGoggleWasm, parseGoSource } from "../wasm/client.ts";
 import { ASTViewer } from "../viewers/ast/ASTViewer.tsx";
@@ -12,6 +12,11 @@ import {
   CFGFunction,
   SSAFunction,
 } from "../wasm/protocol.ts";
+import {
+  AnalysisPosition,
+  analysisPositionForEditorPosition,
+  editorPositionForAnalysisPosition,
+} from "../viewers/shared/lineMapping.ts";
 
 // We store the Go source and the last cursor position in local storage such that users will not lose their input.
 const defaultCode = `// You can edit this code!
@@ -134,11 +139,17 @@ export const App = () => {
     );
   }
 
-  const handleAnalysisLineSelect = (lineNumber: number) => {
+  const analysisPosition = useMemo<AnalysisPosition>(
+    () => analysisPositionForEditorPosition(src, srcPos),
+    [src, srcPos],
+  );
+
+  const handleAnalysisPositionSelect = (position: AnalysisPosition) => {
+    const editorPosition = editorPositionForAnalysisPosition(src, position);
     setSrcPos((current) =>
-      current.lineNumber === lineNumber
+      current.lineNumber === editorPosition.lineNumber && current.column === editorPosition.column
         ? current
-        : { lineNumber, column: 1 }
+        : editorPosition
     );
   };
 
@@ -232,8 +243,8 @@ export const App = () => {
           <section className="panel" aria-label="Control flow graph">
             <CFGViewer
               cfgs={cfgs}
-              sourceLine={srcPos.lineNumber}
-              onSourceLineSelect={handleAnalysisLineSelect}
+              sourcePosition={analysisPosition}
+              onSourcePositionSelect={handleAnalysisPositionSelect}
               theme={theme}
             />
           </section>
@@ -262,8 +273,8 @@ export const App = () => {
           <section className="panel" aria-label="Abstract syntax tree">
             <ASTViewer
               ast={ast}
-              sourceLine={srcPos.lineNumber}
-              onSourceLineSelect={handleAnalysisLineSelect}
+              sourcePosition={analysisPosition}
+              onSourcePositionSelect={handleAnalysisPositionSelect}
               theme={theme}
             />
           </section>
@@ -271,8 +282,8 @@ export const App = () => {
           <section className="panel" aria-label="Static single assignment form">
             <SSAViewer
               ssa={ssa}
-              sourceLine={srcPos.lineNumber}
-              onSourceLineSelect={handleAnalysisLineSelect}
+              sourcePosition={analysisPosition}
+              onSourcePositionSelect={handleAnalysisPositionSelect}
               theme={theme}
             />
           </section>
